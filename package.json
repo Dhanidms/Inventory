@@ -40,9 +40,7 @@
     "react-dom": "^19.2.7",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.3.2",
-    "xlsx": "^0.18.5"
-  },
-  "devDependencies": {
+    "xlsx": "^0.18.5",
     "typescript": "7.0.2"
   }
 }
