@@ -1,5 +1,8 @@
 # Inventory Rental App — Panduan Setup Supabase & Deploy
 
+> ⚠️ **Jangan upgrade `typescript` ke versi 7.x** — Next.js 16.2.10 saat ini tidak kompatibel dengan struktur package TypeScript 7 (tidak ada `lib/typescript.js`) dan akan menyebabkan build gagal secara **silent** khusus di lingkungan CI/Vercel (`exited with 1` tanpa pesan error apapun). Gunakan `typescript ^5.7.3`. Cek kembali kompatibilitas Next.js sebelum upgrade major version TypeScript di masa depan.
+
+
 ## 1. Setup Supabase
 
 ### 1.1 Buat Project Supabase
