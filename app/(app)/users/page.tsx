@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User, Role } from '@/types';
 import { toast } from 'sonner';
-import { Shield, UserCheck, Power, PowerOff, Loader2 } from 'lucide-react';
+import { Shield, UserCheck, Power, PowerOff, Loader2, UserPlus } from 'lucide-react';
 import { formatDate } from '@/lib/date-utils';
+import CreateUserModal from '@/components/CreateUserModal';
 
 export default function UsersPage() {
   const supabase = createClient();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const loadUsers = async () => {
     const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false });
@@ -42,11 +44,19 @@ export default function UsersPage() {
 
   return (
     <div>
-      <div className="page-header">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
           <h1 className="page-title">Manajemen Pengguna</h1>
           <p className="page-subtitle">{users.length} pengguna terdaftar</p>
         </div>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="btn btn-primary"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#4f46e5', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.375rem', border: 'none', cursor: 'pointer' }}
+        >
+          <UserPlus size={18} />
+          Tambah Pengguna
+        </button>
       </div>
 
       <div className="table-wrapper">
@@ -135,6 +145,12 @@ export default function UsersPage() {
           Ubah ke Admin jika diperlukan akses penuh. Nonaktifkan akun untuk mencabut semua akses tanpa menghapus data.
         </div>
       </div>
+
+      <CreateUserModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={loadUsers}
+      />
     </div>
   );
 }

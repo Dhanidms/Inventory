@@ -44,5 +44,9 @@
   },
   "devDependencies": {
     "typescript": "7.0.2"
+  },
+  "allowScripts": {
+    "core-js@3.49.0": true,
+    "sharp@0.34.5": true
   }
 }

@@ -5,7 +5,7 @@ import { ArrowLeft, Phone, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { formatDate, getWhatsAppLink, isOverdue, getDaysOverdue } from '@/lib/date-utils';
 import SuratJalanDetailClient from './SuratJalanDetailClient';
-
+import DeleteSuratJalanButton from '@/components/DeleteSuratJalanButton';
 export const metadata: Metadata = { title: 'Detail Surat Jalan' };
 
 export default async function SuratJalanDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -62,6 +62,9 @@ export default async function SuratJalanDetailPage({ params }: { params: Promise
             <p className="page-subtitle" style={{ color: '#818cf8', fontWeight: 600 }}>{sj.nomor_sj}</p>
           </div>
         </div>
+        {isAdmin && (
+          <DeleteSuratJalanButton sjId={sj.id} sjName={sj.event_name} />
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '1.25rem', alignItems: 'start' }}>

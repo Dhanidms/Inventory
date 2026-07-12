@@ -369,3 +369,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 .alert-danger  { background: rgba(239,68,68,0.1);  border-color: var(--danger);  color: #f87171; }
 .alert-success { background: rgba(16,185,129,0.1); border-color: var(--success); color: #34d399; }
 .alert-info    { background: rgba(59,130,246,0.1); border-color: var(--info);    color: #60a5fa; }
+
+.sj-row:hover {
+  background: rgba(255,255,255,0.02);
+}

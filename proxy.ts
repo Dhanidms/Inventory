@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_ROUTES = ['/login', '/auth/callback', '/auth/error'];
+const PUBLIC_ROUTES = ['/login', '/register', '/auth/callback', '/auth/error'];
 const ADMIN_ONLY_ROUTES = ['/barang/baru', '/barang/import', '/surat-jalan/baru', '/scan', '/users'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
 
   // Allow public routes
   if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
-    if (user && pathname === '/login') {
+    if (user && (pathname === '/login' || pathname === '/register')) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     return supabaseResponse;

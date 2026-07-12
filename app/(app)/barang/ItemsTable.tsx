@@ -28,7 +28,11 @@ export default function ItemsTable({ items }: { items: Item[] }) {
 
     const { error } = await supabase.from('items').delete().eq('id', item.id);
     if (error) {
-      toast.error('Gagal menghapus: ' + error.message);
+      if (error.message.includes('surat_jalan_items_item_id_fkey')) {
+        toast.error('Gagal menghapus: Barang masih tercatat di Surat Jalan. Hapus dari Surat Jalan terlebih dahulu.');
+      } else {
+        toast.error('Gagal menghapus: ' + error.message);
+      }
     } else {
       toast.success('Barang dihapus');
       router.refresh();

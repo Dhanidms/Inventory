@@ -1,51 +1,80 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const router = useRouter();
   const supabase = createClient();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; confirmPassword?: string }>({});
 
   const validate = () => {
     const newErrors: typeof errors = {};
+    if (!name) newErrors.name = 'Nama lengkap wajib diisi';
     if (!email) newErrors.email = 'Email wajib diisi';
     else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Format email tidak valid';
+    
     if (!password) newErrors.password = 'Password wajib diisi';
     else if (password.length < 6) newErrors.password = 'Password minimal 6 karakter';
+    
+    if (password !== confirmPassword) newErrors.confirmPassword = 'Password tidak cocok';
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // 1. Sign up user di Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          name: name,
+        }
+      }
+    });
 
-    if (error) {
-      toast.error(
-        error.message.includes('Invalid login')
-          ? 'Email atau password salah'
-          : error.message
-      );
-    } else {
-      toast.success('Login berhasil!');
-      router.push('/dashboard');
-      router.refresh();
+    if (authError) {
+      toast.error('Gagal mendaftar: ' + authError.message);
+      setLoading(false);
+      return;
     }
+
+    if (authData.user) {
+      // 2. Coba masukkan ke tabel users (role = pic default)
+      // Jika di Supabase sudah ada trigger, ini mungkin error tapi tidak masalah karena auth sukses.
+      const { error: insertError } = await supabase.from('users').insert({
+        id: authData.user.id,
+        name: name,
+        role: 'pic',
+      });
+
+      if (insertError && !insertError.message.includes('duplicate key')) {
+        console.warn('Note: Gagal insert ke tabel users (mungkin sudah ditangani oleh trigger):', insertError.message);
+      }
+
+      toast.success('Pendaftaran berhasil! Silakan cek email Anda jika verifikasi aktif, atau langsung login.');
+      router.push('/login');
+    }
+    
     setLoading(false);
   };
 
@@ -60,7 +89,7 @@ export default function LoginForm() {
     });
 
     if (error) {
-      toast.error('Gagal login dengan Google: ' + error.message);
+      toast.error('Gagal daftar dengan Google: ' + error.message);
       setGoogleLoading(false);
     }
   };
@@ -68,7 +97,7 @@ export default function LoginForm() {
   return (
     <div className="card card-lg" style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.4)' }}>
       <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.5rem', color: '#f1f5f9' }}>
-        Masuk ke Akun
+        Daftar Akun Baru
       </h2>
 
       {/* Google OAuth */}
@@ -78,7 +107,7 @@ export default function LoginForm() {
         disabled={googleLoading || loading}
         className="btn btn-secondary btn-full"
         style={{ marginBottom: '1rem', gap: '0.75rem', padding: '0.75rem' }}
-        id="btn-google-login"
+        id="btn-google-register"
       >
         {googleLoading ? (
           <Loader2 size={18} style={{ animation: 'spin 0.6s linear infinite' }} />
@@ -90,7 +119,7 @@ export default function LoginForm() {
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
         )}
-        {googleLoading ? 'Menghubungkan...' : 'Lanjutkan dengan Google'}
+        {googleLoading ? 'Menghubungkan...' : 'Daftar dengan Google'}
       </button>
 
       {/* Divider */}
@@ -99,12 +128,34 @@ export default function LoginForm() {
         margin: '1rem 0', color: '#64748b', fontSize: '0.8rem',
       }}>
         <div className="divider" style={{ flex: 1, margin: 0 }} />
-        <span>atau masuk dengan email</span>
+        <span>atau daftar dengan email</span>
         <div className="divider" style={{ flex: 1, margin: 0 }} />
       </div>
 
-      {/* Email/Password Form */}
-      <form onSubmit={handleEmailLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        
+        {/* Name */}
+        <div className="form-group">
+          <label className="label" htmlFor="name">Nama Lengkap</label>
+          <div style={{ position: 'relative' }}>
+            <User
+              size={16}
+              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+            />
+            <input
+              id="name"
+              type="text"
+              className={`input ${errors.name ? 'input-error' : ''}`}
+              style={{ paddingLeft: '2.5rem' }}
+              placeholder="Masukkan nama lengkap"
+              value={name}
+              onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: undefined })); }}
+            />
+          </div>
+          {errors.name && <span className="error-text">{errors.name}</span>}
+        </div>
+
+        {/* Email */}
         <div className="form-group">
           <label className="label" htmlFor="email">Email</label>
           <div style={{ position: 'relative' }}>
@@ -120,13 +171,12 @@ export default function LoginForm() {
               placeholder="nama@email.com"
               value={email}
               onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: undefined })); }}
-              autoComplete="email"
-              inputMode="email"
             />
           </div>
           {errors.email && <span className="error-text">{errors.email}</span>}
         </div>
 
+        {/* Password */}
         <div className="form-group">
           <label className="label" htmlFor="password">Password</label>
           <div style={{ position: 'relative' }}>
@@ -139,10 +189,9 @@ export default function LoginForm() {
               type={showPassword ? 'text' : 'password'}
               className={`input ${errors.password ? 'input-error' : ''}`}
               style={{ paddingLeft: '2.5rem', paddingRight: '2.75rem' }}
-              placeholder="••••••••"
+              placeholder="Minimal 6 karakter"
               value={password}
               onChange={e => { setPassword(e.target.value); setErrors(p => ({ ...p, password: undefined })); }}
-              autoComplete="current-password"
             />
             <button
               type="button"
@@ -158,9 +207,29 @@ export default function LoginForm() {
           {errors.password && <span className="error-text">{errors.password}</span>}
         </div>
 
+        {/* Confirm Password */}
+        <div className="form-group">
+          <label className="label" htmlFor="confirmPassword">Konfirmasi Password</label>
+          <div style={{ position: 'relative' }}>
+            <Lock
+              size={16}
+              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+            />
+            <input
+              id="confirmPassword"
+              type={showPassword ? 'text' : 'password'}
+              className={`input ${errors.confirmPassword ? 'input-error' : ''}`}
+              style={{ paddingLeft: '2.5rem', paddingRight: '2.75rem' }}
+              placeholder="Ulangi password"
+              value={confirmPassword}
+              onChange={e => { setConfirmPassword(e.target.value); setErrors(p => ({ ...p, confirmPassword: undefined })); }}
+            />
+          </div>
+          {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
+        </div>
+
         <button
           type="submit"
-          id="btn-email-login"
           disabled={loading || googleLoading}
           className="btn btn-primary btn-full btn-lg"
           style={{ marginTop: '0.5rem' }}
@@ -168,17 +237,17 @@ export default function LoginForm() {
           {loading ? (
             <>
               <Loader2 size={18} style={{ animation: 'spin 0.6s linear infinite' }} />
-              Masuk...
+              Mendaftar...
             </>
           ) : (
-            'Masuk'
+            'Daftar Sekarang'
           )}
         </button>
         
         <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
-          Belum punya akun?{' '}
-          <Link href="/register" style={{ color: '#818cf8', textDecoration: 'none', fontWeight: 500 }}>
-            Daftar di sini
+          Sudah punya akun?{' '}
+          <Link href="/login" style={{ color: '#818cf8', textDecoration: 'none', fontWeight: 500 }}>
+            Masuk di sini
           </Link>
         </div>
       </form>
