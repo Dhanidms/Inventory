@@ -95,8 +95,8 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="card card-lg" style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.4)' }}>
-      <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.5rem', color: '#f1f5f9' }}>
+    <div className="card card-lg" style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.5)' }}>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--text-primary)', fontFamily: "'Oswald', sans-serif", letterSpacing: '0.06em', textTransform: 'uppercase' }}>
         Daftar Akun Baru
       </h2>
 
@@ -125,7 +125,7 @@ export default function RegisterForm() {
       {/* Divider */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: '0.75rem',
-        margin: '1rem 0', color: '#64748b', fontSize: '0.8rem',
+        margin: '1rem 0', color: 'var(--text-muted)', fontSize: '0.8rem',
       }}>
         <div className="divider" style={{ flex: 1, margin: 0 }} />
         <span>atau daftar dengan email</span>
@@ -244,9 +244,9 @@ export default function RegisterForm() {
           )}
         </button>
         
-        <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+        <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Sudah punya akun?{' '}
-          <Link href="/login" style={{ color: '#818cf8', textDecoration: 'none', fontWeight: 500 }}>
+          <Link href="/login" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
             Masuk di sini
           </Link>
         </div>

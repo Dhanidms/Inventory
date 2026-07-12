@@ -50,10 +50,10 @@ export default async function DashboardPage() {
     .limit(10) : { data: [] };
 
   const stats = [
-    { label: 'Total Barang', value: totalItems, icon: Package, color: 'accent', bg: 'rgba(99,102,241,0.15)', iconColor: '#818cf8' },
-    { label: 'Tersedia', value: available, icon: PackageCheck, color: 'success', bg: 'rgba(16,185,129,0.15)', iconColor: '#10b981' },
-    { label: 'Disewa', value: rented, icon: PackageX, color: 'warning', bg: 'rgba(245,158,11,0.15)', iconColor: '#f59e0b' },
-    { label: 'Maintenance', value: maintenance, icon: Wrench, color: 'danger', bg: 'rgba(239,68,68,0.15)', iconColor: '#ef4444' },
+    { label: 'Total Barang', value: totalItems, icon: Package, color: 'accent', bg: 'rgba(242,166,56,0.12)', iconColor: '#f2a638' },
+    { label: 'Tersedia', value: available, icon: PackageCheck, color: 'success', bg: 'rgba(73,183,171,0.12)', iconColor: '#49b7ab' },
+    { label: 'Disewa', value: rented, icon: PackageX, color: 'warning', bg: 'rgba(242,166,56,0.12)', iconColor: '#f2a638' },
+    { label: 'Maintenance', value: maintenance, icon: Wrench, color: 'danger', bg: 'rgba(224,85,58,0.12)', iconColor: '#e0553a' },
   ];
 
   return (
@@ -138,10 +138,10 @@ export default async function DashboardPage() {
                     >
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' }}>
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f1f5f9' }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#ece8e0' }}>
                             {sj.event_name}
                           </div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.15rem' }}>
+                          <div style={{ fontSize: '0.78rem', color: '#6b7170', marginTop: '0.15rem', fontFamily: "'IBM Plex Mono', monospace" }}>
                             {sj.nomor_sj}
                           </div>
                         </div>
@@ -169,14 +169,14 @@ export default async function DashboardPage() {
                           />
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                            Kembali: {formatDate(sj.tanggal_rencana_kembali)}
-                          </span>
-                          {totalItems > 0 && (
-                            <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                              {returnedItems}/{totalItems} kembali
-                            </span>
-                          )}
+                          <span style={{ fontSize: '0.75rem', color: '#6b7170' }}>
+                             Kembali: {formatDate(sj.tanggal_rencana_kembali)}
+                           </span>
+                           {totalItems > 0 && (
+                             <span style={{ fontSize: '0.72rem', color: '#9aa19f' }}>
+                               {returnedItems}/{totalItems} kembali
+                             </span>
+                           )}
                         </div>
                       </div>
 
@@ -230,18 +230,18 @@ export default async function DashboardPage() {
                     }}
                   >
                     <div style={{
-                      width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+                      width: '28px', height: '28px', borderRadius: '3px', flexShrink: 0,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: log.action === 'keluar' ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)',
+                      background: log.action === 'keluar' ? 'rgba(242,166,56,0.15)' : 'rgba(73,183,171,0.15)',
                       fontSize: '0.7rem',
                     }}>
                       {log.action === 'keluar' ? '↗' : '↙'}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f1f5f9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#ece8e0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {log.item?.name ?? '-'}
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '0.1rem' }}>
+                      <div style={{ fontSize: '0.72rem', color: '#6b7170', marginTop: '0.1rem', fontFamily: "'IBM Plex Mono', monospace" }}>
                         {log.surat_jalan?.nomor_sj} • {log.scanner?.name}
                       </div>
                     </div>

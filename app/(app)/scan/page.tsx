@@ -34,12 +34,12 @@ export default async function ScanPage() {
         {/* Check-out */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.875rem' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <PackageOpen size={18} color="#f59e0b" />
+            <div style={{ width: '36px', height: '36px', borderRadius: '3px', background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <PackageOpen size={18} color="var(--accent)" />
             </div>
             <div>
               <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Barang Keluar</h2>
-              <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b' }}>Surat jalan status Draft</p>
+              <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>Surat jalan status Draft</p>
             </div>
           </div>
 
@@ -65,15 +65,15 @@ export default async function ScanPage() {
                 >
                   <div className="card card-sm" style={{
                     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.875rem',
-                    borderLeft: '3px solid #f59e0b',
+                    borderLeft: '3px solid var(--accent)',
                     transition: 'box-shadow 0.15s',
                   }}>
-                    <PackageOpen size={20} color="#f59e0b" style={{ flexShrink: 0 }} />
+                    <PackageOpen size={20} color="var(--accent)" style={{ flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600, fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {sj.event_name}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: "'IBM Plex Mono', monospace" }}>
                         {sj.nomor_sj} • {sj.surat_jalan_items.length} barang • {formatDate(sj.tanggal_ambil)}
                       </div>
                     </div>
@@ -88,12 +88,12 @@ export default async function ScanPage() {
         {/* Check-in */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.875rem' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <PackageCheck size={18} color="#10b981" />
+            <div style={{ width: '36px', height: '36px', borderRadius: '3px', background: 'rgba(73,183,171,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <PackageCheck size={18} color="var(--success)" />
             </div>
             <div>
               <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Barang Masuk</h2>
-              <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b' }}>Surat jalan aktif (sudah keluar)</p>
+              <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>Surat jalan aktif (sudah keluar)</p>
             </div>
           </div>
 
@@ -122,15 +122,15 @@ export default async function ScanPage() {
                   >
                     <div className="card card-sm" style={{
                       cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '0.5rem',
-                      borderLeft: '3px solid #10b981',
+                      borderLeft: '3px solid var(--success)',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-                        <PackageCheck size={20} color="#10b981" style={{ flexShrink: 0 }} />
+                        <PackageCheck size={20} color="var(--success)" style={{ flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 600, fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {sj.event_name}
                           </div>
-                          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: "'IBM Plex Mono', monospace" }}>
                             {sj.nomor_sj} • Kembali: {formatDate(sj.tanggal_rencana_kembali)}
                           </div>
                         </div>

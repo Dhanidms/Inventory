@@ -1,12 +1,6 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: {
@@ -28,14 +22,22 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#0f172a',
+  themeColor: '#191b1c',
   viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={inter.className}>
+    <html lang="id">
       <head>
+        {/* Preconnect for font performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Load Inter + Oswald + IBM Plex Mono at runtime (never blocks build) */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -47,9 +49,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="top-center"
           toastOptions={{
             style: {
-              background: '#1e293b',
-              border: '1px solid #334155',
-              color: '#f1f5f9',
+              background: '#212425',
+              border: '1px solid #383b3c',
+              color: '#ece8e0',
             },
           }}
         />

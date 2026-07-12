@@ -110,7 +110,7 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
             {items.map(sji => sji.item && (
               <div key={sji.id} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
-                padding: '0.875rem', background: 'var(--bg-tertiary)', borderRadius: '10px',
+                padding: '0.875rem', background: 'var(--bg-tertiary)', borderRadius: '3px',
                 width: '140px', textAlign: 'center',
               }}>
                 <div style={{ background: 'white', padding: '0.5rem', borderRadius: '6px' }}>
@@ -127,8 +127,8 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
       {/* Items table */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)' }}>
-          <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>
-            Daftar Barang <span style={{ color: '#818cf8' }}>({items.length})</span>
+          <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, fontFamily: "'Oswald', sans-serif", letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+            Daftar Barang <span style={{ color: 'var(--accent)', fontFamily: "'IBM Plex Mono', monospace" }}>({items.length})</span>
           </h2>
         </div>
 
@@ -152,7 +152,7 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
               <tbody>
                 {items.map((sji, idx) => (
                   <tr key={sji.id}>
-                    <td style={{ color: '#64748b', fontSize: '0.8rem' }}>{idx + 1}</td>
+                    <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace" }}>{idx + 1}</td>
                     <td>
                       <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{sji.item?.name ?? '-'}</div>
                     </td>
@@ -160,7 +160,7 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
                       <span className="badge badge-muted">{sji.item?.category ?? '-'}</span>
                     </td>
                     <td>
-                      <code style={{ fontSize: '0.72rem', color: '#818cf8', background: 'var(--accent-light)', padding: '0.2rem 0.4rem', borderRadius: '4px' }}>
+                      <code style={{ fontSize: '0.72rem', color: 'var(--accent)', background: 'var(--accent-light)', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.02em' }}>
                         {sji.item?.qr_code ?? '-'}
                       </code>
                     </td>

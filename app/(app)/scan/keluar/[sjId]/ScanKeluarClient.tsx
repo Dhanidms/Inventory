@@ -182,7 +182,7 @@ export default function ScanKeluarClient({ sjId }: Props) {
           </Link>
           <div>
             <h1 className="page-title">Scan Barang Keluar</h1>
-            <p className="page-subtitle" style={{ color: '#f59e0b', fontWeight: 600 }}>
+            <p className="page-subtitle" style={{ color: 'var(--accent)', fontWeight: 600, fontFamily: "'IBM Plex Mono', monospace" }}>
               {sj?.nomor_sj} — {sj?.event_name}
             </p>
           </div>
@@ -193,7 +193,7 @@ export default function ScanKeluarClient({ sjId }: Props) {
       <div className="card" style={{ marginBottom: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
           <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Progress Barang Keluar</span>
-          <span style={{ color: checkedCount === total && total > 0 ? '#10b981' : '#94a3b8', fontWeight: 700 }}>
+          <span style={{ color: checkedCount === total && total > 0 ? 'var(--success)' : 'var(--text-secondary)', fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace" }}>
             {checkedCount}/{total}
           </span>
         </div>
@@ -281,22 +281,22 @@ export default function ScanKeluarClient({ sjId }: Props) {
               display: 'flex', alignItems: 'center', gap: '0.875rem',
               padding: '0.75rem 1.25rem',
               borderBottom: '1px solid var(--border)',
-              background: sji.status_keluar ? 'rgba(16,185,129,0.06)' : 'transparent',
+              background: sji.status_keluar ? 'rgba(73,183,171,0.07)' : 'transparent',
               transition: 'background 0.2s',
             }}
           >
             <div style={{
               width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
-              background: sji.status_keluar ? 'rgba(16,185,129,0.2)' : 'var(--bg-tertiary)',
+              background: sji.status_keluar ? 'rgba(73,183,171,0.2)' : 'var(--bg-tertiary)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              {sji.status_keluar ? <CheckCircle2 size={16} color="#10b981" /> : <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#475569' }} />}
+              {sji.status_keluar ? <CheckCircle2 size={16} color="var(--success)" /> : <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--border-light)' }} />}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: sji.status_keluar ? 600 : 400, fontSize: '0.875rem', color: sji.status_keluar ? '#f1f5f9' : '#94a3b8' }}>
+              <div style={{ fontWeight: sji.status_keluar ? 600 : 400, fontSize: '0.875rem', color: sji.status_keluar ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                 {sji.item?.name ?? '-'}
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#64748b', fontFamily: 'monospace' }}>{sji.item?.qr_code}</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: "'IBM Plex Mono', monospace" }}>{sji.item?.qr_code}</div>
             </div>
             {sji.status_keluar && <span className="badge badge-success">✓ Keluar</span>}
           </div>

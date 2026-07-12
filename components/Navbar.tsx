@@ -53,25 +53,28 @@ export default function Navbar({ user }: NavbarProps) {
           alignItems: 'center',
           gap: '0.75rem',
           padding: '0.625rem 0.875rem',
-          borderRadius: '8px',
+          borderRadius: '3px',
           textDecoration: 'none',
           fontWeight: active ? 600 : 400,
           fontSize: '0.875rem',
-          color: active ? '#818cf8' : '#94a3b8',
-          background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
+          color: active ? '#f2a638' : '#9aa19f',
+          background: active ? 'rgba(242,166,56,0.1)' : 'transparent',
           transition: 'all 0.15s',
-          border: active ? '1px solid rgba(99,102,241,0.2)' : '1px solid transparent',
+          border: active ? '1px solid rgba(242,166,56,0.22)' : '1px solid transparent',
+          fontFamily: active ? "'Oswald', sans-serif" : "'Inter', sans-serif",
+          letterSpacing: active ? '0.04em' : '0',
+          textTransform: active ? 'uppercase' : 'none',
         }}
         onMouseEnter={e => {
           if (!active) {
             (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
-            (e.currentTarget as HTMLElement).style.color = '#f1f5f9';
+            (e.currentTarget as HTMLElement).style.color = '#ece8e0';
           }
         }}
         onMouseLeave={e => {
           if (!active) {
             (e.currentTarget as HTMLElement).style.background = 'transparent';
-            (e.currentTarget as HTMLElement).style.color = '#94a3b8';
+            (e.currentTarget as HTMLElement).style.color = '#9aa19f';
           }
         }}
       >
@@ -90,7 +93,7 @@ export default function Navbar({ user }: NavbarProps) {
         height: '60px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 1rem',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button
@@ -100,15 +103,24 @@ export default function Navbar({ user }: NavbarProps) {
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+            {/* Road-case style logo mark — amber on dark */}
             <div style={{
-              width: '28px', height: '28px', borderRadius: '7px',
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              width: '30px', height: '30px', borderRadius: '3px',
+              background: '#f2a638',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 0 0 1px rgba(242,166,56,0.4)',
             }}>
-              <QrCode size={14} color="white" />
+              <QrCode size={15} color="#191b1c" strokeWidth={2.5} />
             </div>
-            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#f1f5f9' }}>
+            <span style={{
+              fontFamily: "'Oswald', sans-serif",
+              fontWeight: 700,
+              fontSize: '1.1rem',
+              color: '#ece8e0',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+            }}>
               InvRental
             </span>
           </div>
@@ -118,10 +130,10 @@ export default function Navbar({ user }: NavbarProps) {
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{
-              width: '32px', height: '32px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              width: '32px', height: '32px', borderRadius: '3px',
+              background: '#f2a638',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '0.8rem', fontWeight: 700, color: 'white',
+              fontSize: '0.8rem', fontWeight: 700, color: '#191b1c',
               overflow: 'hidden',
             }}>
               {user.avatar_url ? (
@@ -132,14 +144,15 @@ export default function Navbar({ user }: NavbarProps) {
               )}
             </div>
             <span style={{
-              background: role === 'admin' ? 'rgba(99,102,241,0.15)' : 'rgba(16,185,129,0.15)',
-              color: role === 'admin' ? '#818cf8' : '#34d399',
+              background: role === 'admin' ? 'rgba(242,166,56,0.15)' : 'rgba(73,183,171,0.15)',
+              color: role === 'admin' ? '#f2a638' : '#49b7ab',
               padding: '0.1rem 0.5rem',
-              borderRadius: '999px',
-              fontWeight: 600,
+              borderRadius: '2px',
+              fontWeight: 700,
               textTransform: 'uppercase',
-              fontSize: '0.65rem',
-              letterSpacing: '0.05em',
+              fontSize: '0.62rem',
+              letterSpacing: '0.08em',
+              fontFamily: "'IBM Plex Mono', monospace",
             } as React.CSSProperties}>
               {role}
             </span>
@@ -152,7 +165,7 @@ export default function Navbar({ user }: NavbarProps) {
         <div
           style={{
             position: 'fixed', inset: 0, zIndex: 40,
-            background: 'rgba(0,0,0,0.6)',
+            background: 'rgba(0,0,0,0.65)',
             backdropFilter: 'blur(4px)',
           }}
           onClick={() => setMobileOpen(false)}
@@ -167,12 +180,12 @@ export default function Navbar({ user }: NavbarProps) {
         width: '260px',
         height: '100dvh',
         zIndex: 45,
-        background: '#0f172a',
-        borderRight: '1px solid #1e293b',
+        background: '#191b1c',
+        borderRight: '1px solid #383b3c',
         display: 'flex',
         flexDirection: 'column',
         transition: 'left 0.25s cubic-bezier(0.4,0,0.2,1)',
-        boxShadow: mobileOpen ? '8px 0 32px rgba(0,0,0,0.5)' : 'none',
+        boxShadow: mobileOpen ? '8px 0 32px rgba(0,0,0,0.6)' : 'none',
         padding: '1.25rem 0.875rem',
         paddingTop: '80px',
         overflowY: 'auto',
@@ -186,21 +199,21 @@ export default function Navbar({ user }: NavbarProps) {
 
         {/* User info + Logout */}
         <div style={{
-          borderTop: '1px solid #1e293b',
+          borderTop: '1px solid #383b3c',
           paddingTop: '1rem',
           marginTop: '1rem',
         }}>
           {user && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: '0.75rem',
-              padding: '0.625rem', borderRadius: '8px',
+              padding: '0.625rem', borderRadius: '3px',
               marginBottom: '0.5rem',
             }}>
               <div style={{
-                width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                width: '36px', height: '36px', borderRadius: '3px', flexShrink: 0,
+                background: '#f2a638',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 700, color: 'white', fontSize: '0.875rem',
+                fontWeight: 700, color: '#191b1c', fontSize: '0.875rem',
                 overflow: 'hidden',
               }}>
                 {user.avatar_url ? (
@@ -211,10 +224,10 @@ export default function Navbar({ user }: NavbarProps) {
                 )}
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f1f5f9', truncate: true, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as React.CSSProperties}>
+                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#ece8e0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as React.CSSProperties}>
                   {user.name || 'User'}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '0.72rem', color: '#6b7170', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {user.email}
                 </div>
               </div>
@@ -224,7 +237,7 @@ export default function Navbar({ user }: NavbarProps) {
           <button
             onClick={handleLogout}
             className="btn btn-ghost btn-full"
-            style={{ justifyContent: 'flex-start', gap: '0.75rem', color: '#ef4444' }}
+            style={{ justifyContent: 'flex-start', gap: '0.75rem', color: '#e0553a' }}
           >
             <LogOut size={16} />
             Keluar
@@ -235,9 +248,9 @@ export default function Navbar({ user }: NavbarProps) {
       {/* ─── Bottom Nav (Mobile) ──────────────────────────────── */}
       <nav style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
-        background: 'rgba(15,23,42,0.95)',
+        background: 'rgba(25,27,28,0.96)',
         backdropFilter: 'blur(12px)',
-        borderTop: '1px solid rgba(255,255,255,0.08)',
+        borderTop: '1px solid #383b3c',
         display: 'flex',
         padding: '0.5rem 0 env(safe-area-inset-bottom)',
       }}>
@@ -256,16 +269,19 @@ export default function Navbar({ user }: NavbarProps) {
                 gap: '0.2rem',
                 padding: '0.375rem 0',
                 textDecoration: 'none',
-                color: active ? '#818cf8' : '#64748b',
-                fontSize: '0.65rem',
-                fontWeight: active ? 600 : 400,
+                color: active ? '#f2a638' : '#6b7170',
+                fontSize: '0.62rem',
+                fontWeight: active ? 700 : 400,
                 transition: 'color 0.15s',
+                fontFamily: active ? "'Oswald', sans-serif" : "'Inter', sans-serif",
+                letterSpacing: active ? '0.04em' : '0',
+                textTransform: 'uppercase',
               }}
             >
               <div style={{
                 padding: '0.3rem 0.75rem',
-                borderRadius: '8px',
-                background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
+                borderRadius: '3px',
+                background: active ? 'rgba(242,166,56,0.12)' : 'transparent',
                 transition: 'background 0.15s',
               }}>
                 <Icon size={20} />

@@ -77,17 +77,17 @@ export default function ItemsTable({ items }: { items: Item[] }) {
                     />
                   ) : (
                     <div style={{
-                      width: '36px', height: '36px', borderRadius: '6px', flexShrink: 0,
+                      width: '36px', height: '36px', borderRadius: '3px', flexShrink: 0,
                       background: 'var(--bg-tertiary)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <QrCode size={16} color="#64748b" />
+                      <QrCode size={16} color="var(--text-muted)" />
                     </div>
                   )}
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.name}</div>
                     {item.notes && (
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '0.1rem' }}>{item.notes}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>{item.notes}</div>
                     )}
                   </div>
                 </div>
@@ -96,7 +96,7 @@ export default function ItemsTable({ items }: { items: Item[] }) {
                 <span className="badge badge-muted">{item.category}</span>
               </td>
               <td>
-                <code style={{ fontSize: '0.75rem', color: '#818cf8', background: 'var(--accent-light)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                <code style={{ fontSize: '0.75rem', color: 'var(--accent)', background: 'var(--accent-light)', padding: '0.2rem 0.5rem', borderRadius: '3px', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.02em' }}>
                   {item.qr_code}
                 </code>
               </td>
@@ -110,7 +110,7 @@ export default function ItemsTable({ items }: { items: Item[] }) {
                   {item.status}
                 </span>
               </td>
-              <td style={{ color: '#64748b', fontSize: '0.8rem' }}>
+              <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace" }}>
                 {formatDate(item.created_at)}
               </td>
               <td>
@@ -122,7 +122,7 @@ export default function ItemsTable({ items }: { items: Item[] }) {
                     onClick={() => handleDelete(item)}
                     className="btn btn-ghost btn-icon btn-sm"
                     title="Hapus"
-                    style={{ color: '#ef4444' }}
+                    style={{ color: 'var(--danger)' }}
                   >
                     <Trash2 size={15} />
                   </button>

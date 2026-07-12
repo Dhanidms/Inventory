@@ -66,8 +66,8 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="card card-lg" style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.4)' }}>
-      <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.5rem', color: '#f1f5f9' }}>
+    <div className="card card-lg" style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.5)' }}>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--text-primary)', fontFamily: "'Oswald', sans-serif", letterSpacing: '0.06em', textTransform: 'uppercase' }}>
         Masuk ke Akun
       </h2>
 
@@ -96,7 +96,7 @@ export default function LoginForm() {
       {/* Divider */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: '0.75rem',
-        margin: '1rem 0', color: '#64748b', fontSize: '0.8rem',
+        margin: '1rem 0', color: 'var(--text-muted)', fontSize: '0.8rem',
       }}>
         <div className="divider" style={{ flex: 1, margin: 0 }} />
         <span>atau masuk dengan email</span>
@@ -110,7 +110,7 @@ export default function LoginForm() {
           <div style={{ position: 'relative' }}>
             <Mail
               size={16}
-              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
             />
             <input
               id="email"
@@ -132,7 +132,7 @@ export default function LoginForm() {
           <div style={{ position: 'relative' }}>
             <Lock
               size={16}
-              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
             />
             <input
               id="password"
@@ -149,7 +149,7 @@ export default function LoginForm() {
               onClick={() => setShowPassword(!showPassword)}
               style={{
                 position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)',
-                background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: 0,
+                background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0,
               }}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -175,9 +175,9 @@ export default function LoginForm() {
           )}
         </button>
         
-        <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+        <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Belum punya akun?{' '}
-          <Link href="/register" style={{ color: '#818cf8', textDecoration: 'none', fontWeight: 500 }}>
+          <Link href="/register" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
             Daftar di sini
           </Link>
         </div>
