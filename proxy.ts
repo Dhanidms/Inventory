@@ -26,8 +26,10 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // Gunakan getSession (parse JWT lokal tanpa request ke API Auth) agar middleware sangat cepat
+  const { data: { session } } = await supabase.auth.getSession();
   const pathname = request.nextUrl.pathname;
+  const user = session?.user;
 
   // Allow public routes
   if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
@@ -42,7 +44,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Check role for admin-only routes
+  // CATATAN PERFORMA: Kita hanya query DB jika mengakses halaman khusus Admin.
+  // Untuk halaman biasa (Dashboard, Barang), ini akan instan!
   if (ADMIN_ONLY_ROUTES.some(route => pathname.startsWith(route))) {
     const { data: userData } = await supabase
       .from('users')
