@@ -2,7 +2,7 @@
 
 import type { Item } from '@/types';
 import Link from 'next/link';
-import { QrCode, Eye, Trash2 } from 'lucide-react';
+import { QrCode, Eye, Trash2, Pencil } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -117,6 +117,9 @@ export default function ItemsTable({ items }: { items: Item[] }) {
                 <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
                   <Link href={`/barang/${item.id}`} className="btn btn-ghost btn-icon btn-sm" title="Detail">
                     <Eye size={15} />
+                  </Link>
+                  <Link href={`/barang/${item.id}/edit`} className="btn btn-ghost btn-icon btn-sm" title="Edit">
+                    <Pencil size={15} />
                   </Link>
                   <button
                     onClick={() => handleDelete(item)}

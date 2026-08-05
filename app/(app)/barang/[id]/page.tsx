@@ -29,14 +29,19 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
   return (
     <div>
       <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Link href="/barang" className="btn btn-ghost btn-icon">
-            <ArrowLeft size={18} />
-          </Link>
-          <div>
-            <h1 className="page-title">{item.name}</h1>
-            <p className="page-subtitle">{item.category}</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Link href="/barang" className="btn btn-ghost btn-icon">
+              <ArrowLeft size={18} />
+            </Link>
+            <div>
+              <h1 className="page-title">{item.name}</h1>
+              <p className="page-subtitle">{item.category}</p>
+            </div>
           </div>
+          <Link href={`/barang/${id}/edit`} className="btn btn-primary btn-sm">
+            Edit Barang
+          </Link>
         </div>
       </div>
 
