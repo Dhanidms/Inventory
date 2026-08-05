@@ -7,32 +7,28 @@ const ADMIN_ONLY_ROUTES = ['/barang/baru', '/barang/import', '/surat-jalan/baru'
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
+  const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        supabaseResponse = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
+      },
+    },
+  });
 
   // Gunakan getSession (parse JWT lokal tanpa request ke API Auth) agar middleware sangat cepat
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   const pathname = request.nextUrl.pathname;
   const user = session?.user;
 
   // Allow public routes
-  if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
+  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
     if (user && (pathname === '/login' || pathname === '/register')) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
@@ -46,12 +42,8 @@ export async function proxy(request: NextRequest) {
 
   // CATATAN PERFORMA: Kita hanya query DB jika mengakses halaman khusus Admin.
   // Untuk halaman biasa (Dashboard, Barang), ini akan instan!
-  if (ADMIN_ONLY_ROUTES.some(route => pathname.startsWith(route))) {
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+  if (ADMIN_ONLY_ROUTES.some((route) => pathname.startsWith(route))) {
+    const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single();
 
     if (!userData || userData.role !== 'admin') {
       return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -62,7 +54,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
