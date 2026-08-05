@@ -1,79 +1,86 @@
-# Inventory Web App
+# Inventory Rental App
 
-Aplikasi Inventory berbasis Next.js dengan arsitektur Database menggunakan Supabase. Aplikasi ini mendukung dua mode deployment untuk databasenya: **Supabase Cloud** atau **Supabase Local** (Self-Hosted).
+Aplikasi Inventory berbasis Next.js dengan arsitektur Database menggunakan Supabase. Aplikasi ini mendukung dua mode deployment: **Supabase Cloud** atau **Supabase Local** (Self-Hosted via Docker di aaPanel).
 
----
-
-## Opsi 1: Menggunakan Supabase Cloud (Default)
-Opsi ini paling mudah jika kamu sudah memiliki project di [supabase.com](https://supabase.com). Database dan Auth diatur oleh server Supabase.
-
-### 1. Persiapan Build (di aaPanel / Ubuntu)
-Clone repository ini ke server kamu:
-```bash
-git clone https://github.com/username-kamu/nama-repo.git
-cd nama-repo
-```
-
-Buat file bernama `.env.production` di dalam folder project ini. File ini **HANYA** boleh berisi variabel Public agar bisa dibaca saat proses build Docker:
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://[URL-PROJECT-CLOUD-KAMU].supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[KEY-ANON-CLOUD-KAMU]
-NEXT_PUBLIC_APP_URL=https://[URL-APP-KAMU]
-```
-
-### 2. Build Image
-Jalankan perintah build. Next.js otomatis membaca `.env.production` di atas.
-```bash
-docker build -t inventory-app:v1 .
-```
-
-### 3. Run Container
-Jalankan container-nya dan masukkan **Secret Key** (Service Role Key dari Supabase Cloud).
-```bash
-docker run -d \
-  --name inventory-app \
-  -p 8080:3000 \
-  -e SUPABASE_SERVICE_ROLE_KEY="[SECRET-KEY-CLOUD-KAMU]" \
-  inventory-app:v1
-```
-Selesai! Aplikasi berjalan di port `8080` dan siap disambungkan ke Domain melalui Reverse Proxy.
+> ⚠️ **Peringatan TypeScript**: Jangan upgrade `typescript` ke versi 7.x — Next.js 16.2.10 saat ini tidak kompatibel dengan struktur package TypeScript 7 (tidak ada `lib/typescript.js`) dan akan menyebabkan build gagal secara **silent** khusus di lingkungan CI/Docker. Gunakan `typescript ^5.7.3`.
 
 ---
 
-## Opsi 2: Menggunakan Supabase Lokal (Tanpa Cloud)
-Opsi ini cocok untuk Local Development di PC atau Self-Hosting murni. Database, Auth, dan Storage akan berjalan di komputermu sendiri via Docker.
+## 1. Setup Kebutuhan Aplikasi (Wajib)
+Sebelum mendeploy atau menggunakan aplikasi, pastikan fitur-fitur wajib ini sudah terkonfigurasi di Supabase kamu (baik versi Cloud maupun Lokal).
 
-### Syarat Tambahan:
-- Docker & Docker Compose harus sudah terinstall dan aktif.
+### 1.1 Buat Storage Bucket
+Aplikasi butuh tempat menyimpan foto barang.
+Di Supabase Dashboard (Cloud) atau Local Studio (`http://127.0.0.1:54323`) → Storage → New bucket:
+- **Name:** `item-photos`
+- **Public:** ✅ Yes *(agar foto bisa diakses publik tanpa login)*
 
-### 1. Inisialisasi & Jalankan Supabase
-Buka terminal di dalam folder project ini, lalu jalankan perintah CLI Supabase:
-```bash
-npx supabase init
-```
-Setelah itu, pindahkan semua file SQL database kamu (seperti `schema.sql`) ke dalam folder `supabase/migrations/` (buat foldernya jika belum ada). 
+### 1.2 Setup Google OAuth (Opsional)
+Jika butuh fitur "Login with Google":
+1. Buka Google Cloud Console → Create Credentials → OAuth 2.0 Client ID (Web application)
+2. Authorized redirect URI: `https://[URL-SUPABASE-KAMU]/auth/v1/callback`
+3. Di menu Supabase → Authentication → Providers → Google: Masukkan Client ID & Secret yang didapat dari Google.
 
-Lalu jalankan Supabase lokal:
-```bash
-npx supabase start
-```
-*(Proses ini akan mendownload semua docker image milik Supabase seperti Postgres dan GoTrue. Tunggu hingga selesai).*
-
-### 2. Atur Environment Variables
-Setelah `supabase start` selesai, terminal akan menampilkan **API URL**, **anon key**, dan **service_role key** versi lokal milikmu.
-
-Buat/edit file `.env.local` (untuk development) atau `.env.production` (untuk build docker server) dengan data lokal tersebut:
-```env
-NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321" # URL Lokal
-NEXT_PUBLIC_SUPABASE_ANON_KEY="[KEY-ANON-LOKAL-DARI-TERMINAL]"
-NEXT_PUBLIC_APP_URL=http://localhost:3000 # Atau domainmu
-# Untuk service role key, jangan masukkan ke .env.production jika build docker, tapi masukkan saat 'docker run' seperti di Opsi 1.
+### 1.3 Buat User Admin Pertama
+Secara default, user yang mendaftar bukan seorang admin. Setelah mendaftar user pertama di aplikasi, jalankan SQL ini di Supabase SQL Editor untuk menjadikannya Admin:
+```sql
+UPDATE public.users SET role = 'admin' WHERE email = 'email-anda@gmail.com';
 ```
 
-### 3. Jalankan Aplikasi
-Jika hanya untuk Local Development, kamu bisa langsung:
-```bash
-npm run dev
-```
+---
 
-Jika untuk deploy ke server menggunakan Supabase lokal, ikuti langkah build `docker build` dan `docker run` seperti pada **Opsi 1**, namun pastikan URL dan Key yang dimasukkan adalah URL/Key lokal milikmu.
+## 2. Cara Deploy (Docker & aaPanel)
+
+### Opsi A: Menggunakan Supabase Cloud (Default)
+Database numpang di layanan cloud Supabase, server hanya menghosting website.
+
+1. Clone repo ini di server (misal di terminal aaPanel): 
+   ```bash
+   git clone https://github.com/username-kamu/nama-repo.git
+   cd nama-repo
+   ```
+2. Buat file `.env.production` dan isi **HANYA** variabel Public:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://[URL-PROJECT-CLOUD].supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=[KEY-ANON-CLOUD]
+   NEXT_PUBLIC_APP_URL=https://[URL-APP-KAMU]
+   ```
+3. Build image Docker-nya:
+   ```bash
+   docker build -t inventory-app:v1 .
+   ```
+4. Jalankan container (sertakan Secret Key di sini agar aman): 
+   ```bash
+   docker run -d --name inventory-app -p 8080:3000 -e SUPABASE_SERVICE_ROLE_KEY="[SECRET-KEY-CLOUD]" inventory-app:v1
+   ```
+
+### Opsi B: Menggunakan Supabase Lokal (Tanpa Cloud)
+Seluruh database, auth, storage, dan website berjalan 100% di server/komputer sendiri. *(Butuh Docker & Docker Compose).*
+
+1. Di terminal komputer, jalankan `npx supabase init`.
+2. Pindahkan file `.sql` (seperti `schema.sql`, `rls.sql`, `categories.sql`) ke dalam folder baru `supabase/migrations/`.
+3. Jalankan `npx supabase start`. Tunggu proses selesai hingga muncul API URL dan Keys lokal.
+4. Buat file `.env.production` (atau `.env.local`) menggunakan kredensial lokal tersebut (contoh URL: `http://127.0.0.1:54321`).
+5. Lakukan `docker build` dan `docker run` persis seperti Opsi A, namun menggunakan key dan url versi lokal.
+
+---
+
+## 3. Fitur & Penggunaan
+
+### Install PWA di HP
+Agar terasa seperti aplikasi native tanpa lewat Play Store/App Store:
+1. Buka URL app di browser HP (Chrome/Safari).
+2. Android: Tap menu ⋮ → "Add to Home Screen".
+3. iOS: Tap ikon Share → "Add to Home Screen".
+
+### Alur Penggunaan Aplikasi
+- **Tambah Barang**: Login sebagai Admin → Buka Menu Barang → Tambah Barang (atau Import Excel) → QR Code akan otomatis digenerate (Print label dan tempel ke fisik barang).
+- **Proses Surat Jalan (Barang Keluar)**: Buat Surat Jalan (Isi nama event & PIC) → Buka Menu Scan → Pilih SJ aktif → Scan QR tiap barang yang akan keluar.
+- **Proses Pengembalian (Barang Masuk)**: Buka Menu Scan → Pilih SJ aktif tadi → Scan QR barang yang kembali untuk update statusnya.
+
+#### Template Excel Import
+Saat melakukan import massal, pastikan file Excel mematuhi header berikut:
+| nama | kategori | kondisi | catatan |
+|------|----------|---------|---------|
+| LED Screen P3 | LED Screen | baik | 4x3m |
+| Camera Sony | Broadcast Camera | baik | Lensa 50mm |
