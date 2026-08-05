@@ -31,6 +31,8 @@ interface Props {
 export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
   const [showQRAll, setShowQRAll] = useState(false);
 
+  const [printType, setPrintType] = useState<'qr' | 'barcode'>('qr');
+
   const handleGeneratePDF = async () => {
     try {
       const { generateSuratJalanPDF } = await import('@/lib/pdf-generator');
@@ -46,38 +48,110 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
-    // We'll render QR codes after window opens
+    const scriptHtml = printType === 'qr' ? `
+      <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+      <script>
+        window.onload = () => {
+          const items = ${JSON.stringify(items.map(i => i.item))};
+          const grid = document.getElementById('grid');
+          items.forEach((item, index) => {
+            if (!item) return;
+            const div = document.createElement('div');
+            div.className = 'label qr';
+            const canvasContainer = document.createElement('div');
+            canvasContainer.className = 'canvas-container';
+            const canvas = document.createElement('canvas');
+            canvasContainer.appendChild(canvas);
+            
+            const title = document.createElement('h3');
+            title.innerText = item.name;
+            const pCode = document.createElement('p');
+            pCode.innerText = item.qr_code;
+            
+            div.appendChild(canvasContainer);
+            div.appendChild(title);
+            div.appendChild(pCode);
+            grid.appendChild(div);
+            
+            QRCode.toCanvas(canvas, item.qr_code, { width: 150, margin: 1 });
+          });
+          setTimeout(() => window.print(), 1000);
+        };
+      </script>
+    ` : `
+      <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+      <script>
+        window.onload = () => {
+          const items = ${JSON.stringify(items.map(i => i.item))};
+          const grid = document.getElementById('grid');
+          items.forEach((item, index) => {
+            if (!item) return;
+            const div = document.createElement('div');
+            div.className = 'label barcode';
+            
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.id = 'barcode-' + index;
+            
+            const info = document.createElement('div');
+            info.className = 'info';
+            const title = document.createElement('h3');
+            title.innerText = item.name;
+            const pCode = document.createElement('p');
+            pCode.innerText = item.category;
+            
+            info.appendChild(title);
+            info.appendChild(pCode);
+            
+            div.appendChild(svg);
+            div.appendChild(info);
+            grid.appendChild(div);
+            
+            JsBarcode("#barcode-" + index, item.qr_code, {
+              format: "CODE128", width: 1, height: 40, displayValue: true, fontSize: 10, margin: 0
+            });
+          });
+          setTimeout(() => window.print(), 1000);
+        };
+      </script>
+    `;
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
-        <title>QR Codes - ${sj.nomor_sj}</title>
+        <title>Labels - ${sj.nomor_sj}</title>
         <style>
-          body { font-family: sans-serif; padding: 16px; background: white; }
-          h1 { font-size: 14px; margin-bottom: 16px; }
-          .grid { display: flex; flex-wrap: wrap; gap: 12px; }
-          .label { border: 1.5px solid #000; border-radius: 6px; padding: 8px; text-align: center; width: 150px; }
-          .label svg { width: 120px; height: 120px; }
-          h3 { margin: 4px 0 0; font-size: 10px; font-weight: 700; word-break: break-all; }
-          p { margin: 2px 0 0; font-size: 8px; color: #555; font-family: monospace; }
-          @media print { body { margin: 0; padding: 8px; } }
+          body { font-family: sans-serif; padding: 16px; background: white; margin: 0; }
+          .header { font-size: 14px; margin-bottom: 16px; text-align: center; font-weight: bold; }
+          .grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+          
+          .label { border: 1px solid #000; padding: 6px; text-align: center; }
+          .label.qr { width: 120px; border-radius: 4px; }
+          .label.barcode { width: 200px; border-radius: 4px; display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
+          .label.barcode .info { text-align: left; flex: 1; }
+          
+          h3 { margin: 0 0 2px; font-size: 10px; font-weight: 700; word-break: break-word; }
+          p { margin: 2px 0 0; font-size: 8px; color: #333; font-family: monospace; }
+          .canvas-container { display: flex; justify-content: center; margin-bottom: 4px; }
+          .canvas-container canvas { width: 90px !important; height: 90px !important; }
+          
+          @media print { 
+            body { padding: 0; }
+            .header { display: none; }
+            .grid { gap: 4px; justify-content: flex-start; }
+            .label { page-break-inside: avoid; }
+          }
         </style>
       </head>
       <body>
-        <h1>QR Labels — ${sj.nomor_sj} — ${sj.event_name}</h1>
-        <div class="grid" id="qr-grid"></div>
-        <script>
-          window.items = ${JSON.stringify(items.map(i => ({ name: i.item?.name, qr_code: i.item?.qr_code, category: i.item?.category })))};
-        </script>
+        <div class="header">Cetak Label — ${sj.nomor_sj} — ${sj.event_name}</div>
+        <div class="grid" id="grid"></div>
+        ${scriptHtml}
       </body>
       </html>
     `);
 
-    // QR SVG generation would need client-side rendering
-    // For now print with text labels
     printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => printWindow.print(), 500);
   };
 
   const items = sj.surat_jalan_items ?? [];
@@ -85,20 +159,31 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Action buttons */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <button onClick={handleGeneratePDF} className="btn btn-secondary btn-sm">
           <FileDown size={14} />
           Download PDF
         </button>
         <button onClick={() => setShowQRAll(!showQRAll)} className="btn btn-secondary btn-sm">
           <QrCode size={14} />
-          {showQRAll ? 'Sembunyikan QR' : 'Tampilkan Semua QR'}
+          {showQRAll ? 'Sembunyikan Label' : 'Tampilkan Label Barang'}
         </button>
         {showQRAll && (
-          <button onClick={handlePrintAllQR} className="btn btn-secondary btn-sm">
-            <Printer size={14} />
-            Print Semua Label
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-secondary)', padding: '0.2rem', borderRadius: 'var(--radius-sm)' }}>
+            <select 
+              value={printType} 
+              onChange={e => setPrintType(e.target.value as 'qr' | 'barcode')}
+              className="input input-sm"
+              style={{ minHeight: '32px', height: '32px', fontSize: '0.8rem', width: 'auto' }}
+            >
+              <option value="qr">QR Code (Kotak)</option>
+              <option value="barcode">Barcode (Memanjang)</option>
+            </select>
+            <button onClick={handlePrintAllQR} className="btn btn-secondary btn-sm" style={{ height: '32px' }}>
+              <Printer size={14} />
+              Print Semua
+            </button>
+          </div>
         )}
       </div>
 

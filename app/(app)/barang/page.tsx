@@ -23,9 +23,12 @@ export default async function BarangPage({
 
   const { data: items } = await query;
 
-  // Get unique categories
-  const { data: allItems } = await supabase.from('items').select('category');
-  const categories = [...new Set(allItems?.map(i => i.category) ?? [])].sort();
+  // Get categories dari tabel categories (bukan dari items)
+  const { data: categoriesData } = await supabase
+    .from('categories')
+    .select('name, icon, color')
+    .order('created_at', { ascending: true });
+  const categories = categoriesData ?? [];
 
   return (
     <div>
@@ -50,7 +53,7 @@ export default async function BarangPage({
       <div className="card" style={{ marginBottom: '1rem', padding: '0.875rem' }}>
         <form style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', flex: 1, minWidth: '160px' }}>
-            <Search size={15} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+            <Search size={15} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input
               name="q"
               type="search"
@@ -62,7 +65,7 @@ export default async function BarangPage({
           </div>
           <select name="kategori" defaultValue={kategori} className="select" style={{ minWidth: '140px' }}>
             <option value="">Semua Kategori</option>
-            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            {categories.map(c => <option key={c.name} value={c.name}>{c.icon} {c.name}</option>)}
           </select>
           <select name="status" defaultValue={status} className="select" style={{ minWidth: '120px' }}>
             <option value="">Semua Status</option>

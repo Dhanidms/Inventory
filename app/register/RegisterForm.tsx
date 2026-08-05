@@ -140,7 +140,7 @@ export default function RegisterForm() {
           <div style={{ position: 'relative' }}>
             <User
               size={16}
-              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
             />
             <input
               id="name"
@@ -161,7 +161,7 @@ export default function RegisterForm() {
           <div style={{ position: 'relative' }}>
             <Mail
               size={16}
-              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
             />
             <input
               id="email"
@@ -182,7 +182,7 @@ export default function RegisterForm() {
           <div style={{ position: 'relative' }}>
             <Lock
               size={16}
-              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
             />
             <input
               id="password"
@@ -198,7 +198,7 @@ export default function RegisterForm() {
               onClick={() => setShowPassword(!showPassword)}
               style={{
                 position: 'absolute', right: '0.875rem', top: '50%', transform: 'translateY(-50%)',
-                background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: 0,
+                background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0,
               }}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -213,7 +213,7 @@ export default function RegisterForm() {
           <div style={{ position: 'relative' }}>
             <Lock
               size={16}
-              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+              style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
             />
             <input
               id="confirmPassword"

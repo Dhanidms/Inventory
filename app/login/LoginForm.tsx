@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginForm() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,8 +20,7 @@ export default function LoginForm() {
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (!email) newErrors.email = 'Email wajib diisi';
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Format email tidak valid';
+    if (!identifier) newErrors.email = 'Username atau Email wajib diisi';
     if (!password) newErrors.password = 'Password wajib diisi';
     else if (password.length < 6) newErrors.password = 'Password minimal 6 karakter';
     setErrors(newErrors);
@@ -33,12 +32,38 @@ export default function LoginForm() {
     if (!validate()) return;
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    let loginEmail = identifier;
+
+    // Jika bukan email (tidak ada @), lookup email dari database
+    if (!identifier.includes('@')) {
+      try {
+        const res = await fetch('/api/auth/lookup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: identifier })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+          toast.error(data.error || 'Username tidak ditemukan');
+          setLoading(false);
+          return;
+        }
+        
+        loginEmail = data.email;
+      } catch (err) {
+        toast.error('Gagal memverifikasi username');
+        setLoading(false);
+        return;
+      }
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
 
     if (error) {
       toast.error(
         error.message.includes('Invalid login')
-          ? 'Email atau password salah'
+          ? 'Username/Email atau password salah'
           : error.message
       );
     } else {
@@ -99,29 +124,28 @@ export default function LoginForm() {
         margin: '1rem 0', color: 'var(--text-muted)', fontSize: '0.8rem',
       }}>
         <div className="divider" style={{ flex: 1, margin: 0 }} />
-        <span>atau masuk dengan email</span>
+        <span>atau masuk dengan sistem</span>
         <div className="divider" style={{ flex: 1, margin: 0 }} />
       </div>
 
       {/* Email/Password Form */}
       <form onSubmit={handleEmailLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div className="form-group">
-          <label className="label" htmlFor="email">Email</label>
+          <label className="label" htmlFor="email">Username atau Email</label>
           <div style={{ position: 'relative' }}>
-            <Mail
+            <User
               size={16}
               style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
             />
             <input
               id="email"
-              type="email"
+              type="text"
               className={`input ${errors.email ? 'input-error' : ''}`}
               style={{ paddingLeft: '2.5rem' }}
-              placeholder="nama@email.com"
-              value={email}
-              onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: undefined })); }}
-              autoComplete="email"
-              inputMode="email"
+              placeholder="Username atau nama@email.com"
+              value={identifier}
+              onChange={e => { setIdentifier(e.target.value); setErrors(p => ({ ...p, email: undefined })); }}
+              autoComplete="username"
             />
           </div>
           {errors.email && <span className="error-text">{errors.email}</span>}

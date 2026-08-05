@@ -13,7 +13,7 @@ export default function RegisterPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'radial-gradient(ellipse at top, #1e1b4b 0%, #0f172a 60%)',
+      background: 'radial-gradient(ellipse at top, #0f1d3d 0%, #0c1222 60%)',
       padding: '1rem',
     }}>
       {/* Background decoration */}
@@ -23,7 +23,7 @@ export default function RegisterPage() {
         <div style={{
           position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)',
           width: '600px', height: '600px',
-          background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
           borderRadius: '50%',
         }} />
       </div>
@@ -33,10 +33,10 @@ export default function RegisterPage() {
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
             width: '56px', height: '56px', borderRadius: '14px',
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1rem',
-            boxShadow: '0 8px 32px rgba(99,102,241,0.4)',
+            boxShadow: '0 8px 32px rgba(59,130,246,0.4)',
           }}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="3" width="20" height="14" rx="2"/>
@@ -44,17 +44,17 @@ export default function RegisterPage() {
               <line x1="12" y1="17" x2="12" y2="21"/>
             </svg>
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f1f5f9', margin: 0 }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, fontFamily: "'Oswald', sans-serif", letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             Inventory Rental
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem', margin: '0.5rem 0 0' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: '0.5rem 0 0' }}>
             Buat akun baru untuk PIC
           </p>
         </div>
 
         <RegisterForm />
 
-        <p style={{ textAlign: 'center', fontSize: '0.75rem', color: '#64748b', marginTop: '1.5rem' }}>
+        <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '1.5rem' }}>
           © 2026 Inventory Rental. All rights reserved.
         </p>
       </div>

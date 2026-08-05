@@ -1,18 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { generateQRCode } from '@/lib/qr-utils';
 import { toast } from 'sonner';
-import { QrCode, Upload, Loader2, ArrowLeft } from 'lucide-react';
+import { QrCode, Upload, Loader2, ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
 import type { ItemCondition } from '@/types';
 
-const CATEGORIES = [
-  'LED Screen', 'Broadcast Camera', 'Audio', 'Lighting', 'Cable & Power',
-  'Truss & Structure', 'Control & Signal', 'Wireless', 'Lainnya'
-];
+interface Category { id: string; name: string; color: string; icon: string; }
 
 export default function TambahBarangForm() {
   const router = useRouter();
@@ -21,11 +18,21 @@ export default function TambahBarangForm() {
   const [loading, setLoading] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  // Load categories dari DB
+  useEffect(() => {
+    supabase
+      .from('categories')
+      .select('id, name, color, icon')
+      .order('created_at', { ascending: true })
+      .then(({ data }) => { if (data) setCategories(data); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [form, setForm] = useState({
     name: '',
     category: '',
-    customCategory: '',
     condition: 'baik' as ItemCondition,
     notes: '',
   });
@@ -43,8 +50,8 @@ export default function TambahBarangForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) { toast.error('Nama barang wajib diisi'); return; }
-    const cat = form.category === 'Lainnya' ? form.customCategory : form.category;
-    if (!cat.trim()) { toast.error('Kategori wajib diisi'); return; }
+    if (!form.category.trim()) { toast.error('Kategori wajib diisi'); return; }
+    const cat = form.category;
 
     setLoading(true);
     try {
@@ -67,7 +74,7 @@ export default function TambahBarangForm() {
 
       const { error } = await supabase.from('items').insert({
         name: form.name.trim(),
-        category: cat.trim(),
+        category: cat,
         condition: form.condition,
         notes: form.notes.trim() || null,
         qr_code: qrCode,
@@ -157,7 +164,12 @@ export default function TambahBarangForm() {
 
             {/* Kategori */}
             <div className="form-group">
-              <label className="label" htmlFor="category">Kategori *</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className="label" htmlFor="category">Kategori *</label>
+                <Link href="/kategori" className="btn btn-ghost btn-sm" style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}>
+                  <Plus size={11} /> Kelola Kategori
+                </Link>
+              </div>
               <select
                 id="category"
                 className="select"
@@ -165,18 +177,13 @@ export default function TambahBarangForm() {
                 onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
                 required
               >
-                <option value="">Pilih Kategori</option>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                <option value="">
+                  {categories.length === 0 ? 'Memuat kategori...' : 'Pilih Kategori'}
+                </option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.name}>{c.icon} {c.name}</option>
+                ))}
               </select>
-              {form.category === 'Lainnya' && (
-                <input
-                  className="input"
-                  placeholder="Ketik kategori baru..."
-                  style={{ marginTop: '0.5rem' }}
-                  value={form.customCategory}
-                  onChange={e => setForm(p => ({ ...p, customCategory: e.target.value }))}
-                />
-              )}
             </div>
 
             {/* Kondisi */}

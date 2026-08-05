@@ -30,7 +30,7 @@ export default async function ScanPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+      <div className="grid-2">
         {/* Check-out */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.875rem' }}>
@@ -139,7 +139,7 @@ export default async function ScanPage() {
                       <div className="progress-bar" style={{ height: '4px' }}>
                         <div className="progress-fill" style={{ width: `${total ? (returned / total) * 100 : 0}%` }} />
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                         {returned}/{total} barang kembali
                       </div>
                     </div>

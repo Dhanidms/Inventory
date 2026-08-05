@@ -121,16 +121,16 @@ export default async function SuratJalanPage({
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#f1f5f9' }}>{sj.event_name}</span>
+                      <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{sj.event_name}</span>
                       <span className={`badge ${overdue ? 'badge-danger' : STATUS_BADGE[sj.status] ?? 'badge-muted'}`}>
                         {overdue && <AlertTriangle size={10} />}
                         {overdue ? `${daysOver}h overdue` : STATUS_LABEL[sj.status] ?? sj.status}
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
                       {sj.nomor_sj} • PIC: <strong>{sj.pic_name}</strong>
                     </div>
-                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.78rem', color: '#64748b', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.78rem', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
                       <span>Ambil: {formatDate(sj.tanggal_ambil)}</span>
                       <span>Kembali: {formatDate(sj.tanggal_rencana_kembali)}</span>
                       {total > 0 && <span>{returned}/{total} barang kembali</span>}
