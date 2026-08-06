@@ -35,6 +35,7 @@ export default function TambahBarangForm() {
     category: '',
     condition: 'baik' as ItemCondition,
     notes: '',
+    quantity: 1,
   });
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,13 +56,13 @@ export default function TambahBarangForm() {
 
     setLoading(true);
     try {
-      const qrCode = generateQRCode();
       let photoUrl: string | null = null;
+      const baseQrCode = generateQRCode();
 
       // Upload foto ke Supabase Storage
       if (photoFile) {
         const ext = photoFile.name.split('.').pop();
-        const path = `items/${qrCode}.${ext}`;
+        const path = `items/${baseQrCode}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from('item-photos')
           .upload(path, photoFile, { upsert: true });
@@ -72,15 +73,47 @@ export default function TambahBarangForm() {
         }
       }
 
-      const { error } = await supabase.from('items').insert({
-        name: form.name.trim(),
-        category: cat,
-        condition: form.condition,
-        notes: form.notes.trim() || null,
-        qr_code: qrCode,
-        photo_url: photoUrl,
-        status: 'tersedia',
+      const quantity = Math.max(1, Number(form.quantity) || 1);
+      
+      const trimmedName = form.name.trim();
+      const nameMatch = trimmedName.match(/^(.*?)(\d+)$/);
+      let baseName = trimmedName;
+      let startNumber = 1;
+      let hasNumber = false;
+      let numLength = 0;
+
+      if (nameMatch) {
+        baseName = nameMatch[1];
+        startNumber = parseInt(nameMatch[2], 10);
+        numLength = nameMatch[2].length;
+        hasNumber = true;
+      }
+
+      const itemsToInsert = Array.from({ length: quantity }).map((_, index) => {
+        let itemName = trimmedName;
+        if (quantity > 1) {
+          if (hasNumber) {
+            // Pad start with 0 if original number has leading zeros
+            const nextNumStr = String(startNumber + index);
+            const paddedNumStr = nextNumStr.padStart(numLength, '0');
+            itemName = `${baseName}${paddedNumStr}`;
+          } else {
+            itemName = `${trimmedName} ${index + 1}`;
+          }
+        }
+        
+        return {
+          name: itemName,
+          category: cat,
+          condition: form.condition,
+          notes: form.notes.trim() || null,
+          qr_code: generateQRCode(),
+          photo_url: photoUrl,
+          status: 'tersedia',
+        };
       });
+
+      const { error } = await supabase.from('items').insert(itemsToInsert);
 
       if (error) throw error;
 
@@ -213,6 +246,24 @@ export default function TambahBarangForm() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Kuantitas */}
+            <div className="form-group">
+              <label className="label" htmlFor="quantity">Kuantitas *</label>
+              <input
+                id="quantity"
+                type="number"
+                min="1"
+                className="input"
+                placeholder="Jumlah barang yang ingin ditambahkan (cth: 50)"
+                value={form.quantity}
+                onChange={e => setForm(p => ({ ...p, quantity: parseInt(e.target.value) || 1 }))}
+                required
+              />
+              <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
+                Jika lebih dari 1, sistem otomatis membuat banyak data barang sekaligus.
+              </p>
             </div>
 
             {/* Catatan */}
