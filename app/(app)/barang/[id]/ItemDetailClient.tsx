@@ -63,7 +63,7 @@ export default function ItemDetailClient({ item }: { item: Item }) {
             body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: white; }
             .label { border: 1px solid #000; padding: 6px; text-align: center; }
             .label.qr { width: 120px; border-radius: 4px; }
-            .label.barcode { width: 200px; border-radius: 4px; display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
+            .label.barcode { width: 260px; border-radius: 4px; display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
             .label.barcode .info { text-align: left; }
             h3 { margin: 0 0 2px; font-size: 10px; font-weight: 700; word-break: break-word; }
             p { margin: 2px 0 0; font-size: 8px; color: #333; font-family: monospace; }
@@ -128,8 +128,8 @@ export default function ItemDetailClient({ item }: { item: Item }) {
           className="input"
           style={{ width: '100%', fontSize: '0.875rem' }}
         >
-          <option value="qr">QR Code (Kotak)</option>
-          <option value="barcode">Barcode (Memanjang)</option>
+          <option value="qr">QR Code</option>
+          <option value="barcode">Barcode</option>
         </select>
       </div>
 

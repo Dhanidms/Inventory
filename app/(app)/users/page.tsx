@@ -68,7 +68,7 @@ export default function UsersPage() {
               <th>Role</th>
               <th>Status</th>
               <th>Bergabung</th>
-              <th style={{ textAlign: 'right' }}>Aksi</th>
+              <th className="sticky-col-right" style={{ textAlign: 'right' }}>Aksi</th>
             </tr>
           </thead>
           <tbody>

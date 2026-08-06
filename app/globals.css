@@ -170,7 +170,15 @@ code, .qr-code, .nomor-sj, .stat-value {
 .input::placeholder, .textarea::placeholder { color: var(--text-muted); }
 .input-error { border-color: var(--danger) !important; }
 .textarea { resize: vertical; min-height: 80px; }
-.select { appearance: none; cursor: pointer; }
+.select { 
+  appearance: none; 
+  cursor: pointer; 
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
 
 .form-group {
   display: flex;
@@ -208,7 +216,7 @@ code, .qr-code, .nomor-sj, .stat-value {
 
 /* ─── Table ──────────────────────────────────────────────────── */
 .table-wrapper { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-table { width: 100%; border-collapse: collapse; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; }
 th {
   text-align: left;
   font-size: 0.7rem;
@@ -231,6 +239,21 @@ td {
 tr:last-child td { border-bottom: none; }
 tbody tr { transition: background 0.1s; }
 tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+.sticky-col-right {
+  position: -webkit-sticky;
+  position: sticky;
+  right: 0;
+  background: var(--bg-secondary);
+  box-shadow: -4px 0 15px rgba(0,0,0,0.3);
+  z-index: 1;
+}
+th.sticky-col-right {
+  z-index: 2;
+}
+tbody tr:hover .sticky-col-right {
+  background: var(--bg-tertiary);
+}
 
 /* ─── Stats Card ─────────────────────────────────────────────── */
 .stat-card {

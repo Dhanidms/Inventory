@@ -127,7 +127,7 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
           
           .label { border: 1px solid #000; padding: 6px; text-align: center; }
           .label.qr { width: 120px; border-radius: 4px; }
-          .label.barcode { width: 200px; border-radius: 4px; display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
+          .label.barcode { width: 260px; border-radius: 4px; display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
           .label.barcode .info { text-align: left; flex: 1; }
           
           h3 { margin: 0 0 2px; font-size: 10px; font-weight: 700; word-break: break-word; }
@@ -173,11 +173,11 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
             <select 
               value={printType} 
               onChange={e => setPrintType(e.target.value as 'qr' | 'barcode')}
-              className="input input-sm"
-              style={{ minHeight: '32px', height: '32px', fontSize: '0.8rem', width: 'auto' }}
+              className="select"
+              style={{ minHeight: '32px', height: '32px', fontSize: '0.8rem', width: 'auto', padding: '0 2.5rem 0 0.75rem' }}
             >
-              <option value="qr">QR Code (Kotak)</option>
-              <option value="barcode">Barcode (Memanjang)</option>
+              <option value="qr">QR Code</option>
+              <option value="barcode">Barcode</option>
             </select>
             <button onClick={handlePrintAllQR} className="btn btn-secondary btn-sm" style={{ height: '32px' }}>
               <Printer size={14} />
