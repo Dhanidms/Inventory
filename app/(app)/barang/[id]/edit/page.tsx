@@ -98,10 +98,12 @@ export default function EditBarangForm() {
             .from('item-photos')
             .upload(path, photoFile, { upsert: true });
 
-          if (!uploadError) {
-            const { data: urlData } = supabase.storage.from('item-photos').getPublicUrl(path);
-            photoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+          if (uploadError) {
+            throw new Error(`Gagal upload foto: ${uploadError.message}`);
           }
+
+          const { data: urlData } = supabase.storage.from('item-photos').getPublicUrl(path);
+          photoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
         }
       }
 
