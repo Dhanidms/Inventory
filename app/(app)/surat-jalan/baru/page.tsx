@@ -154,7 +154,7 @@ export default function BuatSuratJalanPage() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '1.25rem', alignItems: 'start' }}>
+        <div className="dashboard-grid admin">
           {/* Left column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {/* Info Event */}

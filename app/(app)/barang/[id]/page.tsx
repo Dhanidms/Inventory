@@ -45,7 +45,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '1.25rem', alignItems: 'start' }}>
+      <div className="dashboard-grid admin">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Info Card */}
           <div className="card">

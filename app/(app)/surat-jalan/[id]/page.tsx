@@ -67,7 +67,7 @@ export default async function SuratJalanDetailPage({ params }: { params: Promise
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '1.25rem', alignItems: 'start' }}>
+      <div className="dashboard-grid admin">
         {/* Left */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Overdue alert */}
