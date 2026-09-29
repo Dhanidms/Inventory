@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { Item } from '@/types';
 import Link from 'next/link';
-import { QrCode, Eye, Trash2, Pencil, Printer } from 'lucide-react';
+import { QrCode, Eye, Trash2, Pencil, Printer, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -26,6 +26,7 @@ export default function ItemsTable({ items }: { items: Item[] }) {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [printType, setPrintType] = useState<'qr' | 'barcode'>('qr');
+  const [isUploadingBulk, setIsUploadingBulk] = useState(false);
 
   const toggleSelectAll = () => {
     if (selectedIds.size === items.length) {
@@ -52,6 +53,48 @@ export default function ItemsTable({ items }: { items: Item[] }) {
       toast.success(`${selectedIds.size} barang dihapus`);
       setSelectedIds(new Set());
       router.refresh();
+    }
+  };
+
+  const handleBulkPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ukuran foto maksimal 5MB');
+      return;
+    }
+
+    setIsUploadingBulk(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const path = `bulk/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('item-photos')
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) throw new Error(`Gagal upload foto: ${uploadError.message}`);
+
+      const { data: urlData } = supabase.storage.from('item-photos').getPublicUrl(path);
+      const photoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase
+        .from('items')
+        .update({ photo_url: photoUrl })
+        .in('id', Array.from(selectedIds));
+
+      if (updateError) throw new Error(`Gagal update database: ${updateError.message}`);
+
+      toast.success(`Foto berhasil diatur untuk ${selectedIds.size} barang`);
+      setSelectedIds(new Set());
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error((err as Error).message);
+    } finally {
+      setIsUploadingBulk(false);
+      e.target.value = ''; // Reset input
     }
   };
 
@@ -206,15 +249,22 @@ export default function ItemsTable({ items }: { items: Item[] }) {
               value={printType} 
               onChange={e => setPrintType(e.target.value as 'qr' | 'barcode')}
               className="select"
-              style={{ minHeight: '32px', height: '32px', fontSize: '0.8rem', flex: '1 1 140px', padding: '0 2.5rem 0 0.75rem', maxWidth: '240px' }}
+              style={{ minHeight: '32px', height: '32px', fontSize: '0.8rem', flex: '1 1 120px', padding: '0 2rem 0 0.75rem', maxWidth: '200px' }}
             >
               <option value="qr">QR Code</option>
               <option value="barcode">Barcode</option>
             </select>
-            <button onClick={handleBulkPrint} className="btn btn-primary btn-sm" style={{ height: '32px', flex: '1 1 80px', justifyContent: 'center', maxWidth: '140px' }}>
+            <button onClick={handleBulkPrint} className="btn btn-primary btn-sm" style={{ height: '32px', flex: '1 1 70px', justifyContent: 'center', maxWidth: '100px' }}>
               <Printer size={14} /> Print
             </button>
-            <button onClick={handleBulkDelete} className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)', height: '32px', flex: '1 1 80px', justifyContent: 'center', maxWidth: '140px' }}>
+            
+            <label className="btn btn-secondary btn-sm" style={{ height: '32px', flex: '1 1 100px', justifyContent: 'center', maxWidth: '130px', margin: 0, cursor: isUploadingBulk ? 'not-allowed' : 'pointer' }}>
+              {isUploadingBulk ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <ImageIcon size={14} />}
+              {isUploadingBulk ? 'Upload...' : 'Set Foto'}
+              <input type="file" accept="image/*" onChange={handleBulkPhotoUpload} disabled={isUploadingBulk} style={{ display: 'none' }} />
+            </label>
+
+            <button onClick={handleBulkDelete} className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)', height: '32px', flex: '1 1 70px', justifyContent: 'center', maxWidth: '100px' }}>
               <Trash2 size={14} /> Hapus
             </button>
           </div>
