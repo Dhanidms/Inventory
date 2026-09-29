@@ -228,8 +228,8 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
                 <tr>
                   <th>#</th>
                   <th>Nama Barang</th>
-                  <th>Kategori</th>
-                  <th>QR Code</th>
+                  <th className="hide-mobile">Kategori</th>
+                  <th className="hide-mobile">QR Code</th>
                   <th style={{ textAlign: 'center' }}>Keluar</th>
                   <th style={{ textAlign: 'center' }}>Kembali</th>
                 </tr>
@@ -241,10 +241,10 @@ export default function SuratJalanDetailClient({ sj, isAdmin }: Props) {
                     <td>
                       <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{sji.item?.name ?? '-'}</div>
                     </td>
-                    <td>
+                    <td className="hide-mobile">
                       <span className="badge badge-muted">{sji.item?.category ?? '-'}</span>
                     </td>
-                    <td>
+                    <td className="hide-mobile">
                       <code style={{ fontSize: '0.72rem', color: 'var(--accent)', background: 'var(--accent-light)', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.02em' }}>
                         {sji.item?.qr_code ?? '-'}
                       </code>

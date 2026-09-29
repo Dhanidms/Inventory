@@ -234,12 +234,12 @@ export default function ItemsTable({ items }: { items: Item[] }) {
                 />
               </th>
               <th>Nama Barang</th>
-              <th>Kategori</th>
-            <th>QR Code</th>
-            <th>Kondisi</th>
-            <th>Status</th>
-            <th>Ditambahkan</th>
-            <th className="sticky-col-right" style={{ textAlign: 'right' }}>Aksi</th>
+              <th className="hide-mobile">Kategori</th>
+              <th className="hide-mobile">QR Code</th>
+              <th className="hide-mobile">Kondisi</th>
+              <th>Status</th>
+              <th className="hide-mobile">Ditambahkan</th>
+              <th className="sticky-col-right" style={{ textAlign: 'right' }}>Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -279,15 +279,15 @@ export default function ItemsTable({ items }: { items: Item[] }) {
                   </div>
                 </div>
               </td>
-              <td>
+              <td className="hide-mobile">
                 <span className="badge badge-muted">{item.category}</span>
               </td>
-              <td>
+              <td className="hide-mobile">
                 <code style={{ fontSize: '0.75rem', color: 'var(--accent)', background: 'var(--accent-light)', padding: '0.2rem 0.5rem', borderRadius: '3px', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.02em' }}>
                   {item.qr_code}
                 </code>
               </td>
-              <td>
+              <td className="hide-mobile">
                 <span className={`badge ${CONDITION_BADGE[item.condition] ?? 'badge-muted'}`}>
                   {item.condition}
                 </span>
@@ -297,7 +297,7 @@ export default function ItemsTable({ items }: { items: Item[] }) {
                   {item.status}
                 </span>
               </td>
-              <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace" }}>
+              <td className="hide-mobile" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace" }}>
                 {formatDate(item.created_at)}
               </td>
               <td className="sticky-col-right" style={{ textAlign: 'right' }}>
