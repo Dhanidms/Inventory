@@ -93,7 +93,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? '1fr 340px' : '1fr', gap: '1.25rem', alignItems: 'start' }}>
+      <div className={`dashboard-grid ${isAdmin ? 'admin' : ''}`}>
         {/* ─── Active Surat Jalan ────────────────────────────────────────────── */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{
