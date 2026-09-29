@@ -90,5 +90,7 @@ export interface ImportRow {
   category: string;
   condition?: ItemCondition;
   notes?: string;
+  quantity: number;
+  photo_url?: string;
   [key: string]: unknown;
 }

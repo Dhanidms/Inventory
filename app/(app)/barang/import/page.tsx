@@ -61,14 +61,22 @@ export default function ImportBarangPage() {
     setImporting(true);
 
     try {
-      const insertData = rows.map(row => ({
-        name: row.name,
-        category: row.category,
-        condition: row.condition ?? 'baik',
-        notes: row.notes ?? null,
-        qr_code: generateQRCode(),
-        status: 'tersedia',
-      }));
+      const insertData: any[] = [];
+      
+      rows.forEach(row => {
+        const qty = row.quantity || 1;
+        for (let i = 0; i < qty; i++) {
+          insertData.push({
+            name: row.name,
+            category: row.category,
+            condition: row.condition ?? 'baik',
+            notes: row.notes ?? null,
+            qr_code: generateQRCode(),
+            status: 'tersedia',
+            photo_url: row.photo_url ?? null,
+          });
+        }
+      });
 
       const BATCH_SIZE = 50;
       let totalInserted = 0;
@@ -110,7 +118,7 @@ export default function ImportBarangPage() {
         <div>
           <strong>Format kolom yang dibutuhkan:</strong>
           <code style={{ display: 'block', marginTop: '0.4rem', fontSize: '0.78rem', background: 'rgba(0,0,0,0.2)', padding: '0.4rem 0.75rem', borderRadius: '6px' }}>
-            nama | kategori | kondisi (opsional) | catatan (opsional)
+            nama | kategori | qty (opsional) | foto (opsional) | kondisi (opsional) | catatan (opsional)
           </code>
           <p style={{ margin: '0.4rem 0 0', fontSize: '0.8rem' }}>
             Baris pertama harus header. Kondisi: baik / rusak / maintenance
@@ -193,7 +201,7 @@ export default function ImportBarangPage() {
         <>
           <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>
-              Preview Data ({rows.length} barang)
+              Preview Data ({rows.reduce((acc, row) => acc + (row.quantity || 1), 0)} barang total dari {rows.length} baris)
             </h2>
           </div>
 
@@ -204,7 +212,9 @@ export default function ImportBarangPage() {
                   <th>#</th>
                   <th>Nama Barang</th>
                   <th>Kategori</th>
+                  <th style={{ textAlign: 'center' }}>Qty</th>
                   <th>Kondisi</th>
+                  <th>Foto</th>
                   <th>Catatan</th>
                 </tr>
               </thead>
@@ -214,10 +224,14 @@ export default function ImportBarangPage() {
                     <td style={{ color: '#64748b', fontSize: '0.8rem' }}>{i + 1}</td>
                     <td style={{ fontWeight: 500 }}>{row.name}</td>
                     <td><span className="badge badge-muted">{row.category}</span></td>
+                    <td style={{ textAlign: 'center' }}>{row.quantity}</td>
                     <td>
                       <span className={`badge ${row.condition === 'baik' ? 'badge-success' : row.condition === 'rusak' ? 'badge-danger' : 'badge-warning'}`}>
                         {row.condition ?? 'baik'}
                       </span>
+                    </td>
+                    <td style={{ fontSize: '0.8rem', color: '#64748b', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {row.photo_url || '-'}
                     </td>
                     <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{row.notes || '-'}</td>
                   </tr>
@@ -247,7 +261,7 @@ export default function ImportBarangPage() {
               {importing ? (
                 <><Loader2 size={16} style={{ animation: 'spin 0.6s linear infinite' }} /> Mengimport...</>
               ) : (
-                <><CheckCircle2 size={16} /> Import {rows.length} Barang</>
+                <><CheckCircle2 size={16} /> Import {rows.reduce((acc, row) => acc + (row.quantity || 1), 0)} Barang</>
               )}
             </button>
           </div>

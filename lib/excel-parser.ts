@@ -61,11 +61,18 @@ export function parseExcelFile(file: File): Promise<ParseResult> {
             ? (conditionRaw as ItemCondition)
             : 'baik';
 
+          const qtyRaw = parseInt(String(row['quantity'] || row['Kuantitas'] || row['kuantitas'] || row['Qty'] || row['qty'] || '1').trim(), 10);
+          const quantity = isNaN(qtyRaw) || qtyRaw < 1 ? 1 : qtyRaw;
+
+          const photo_url = String(row['photo_url'] || row['Foto'] || row['foto'] || row['gambar'] || row['Image'] || '').trim() || undefined;
+
           rows.push({
             name,
             category,
             condition,
             notes: String(row['notes'] || row['Catatan'] || row['catatan'] || '').trim(),
+            quantity,
+            photo_url,
           });
         }
 
