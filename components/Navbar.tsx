@@ -53,17 +53,54 @@ export default function Navbar({ user }: NavbarProps) {
     const Icon = item.icon;
     const collapsedMode = isCollapsed && isDesktop;
 
+    if (collapsedMode) {
+      return (
+        <div className="gemini-tooltip-container" style={{ width: '100%', margin: '0.15rem 0' }}>
+          <Link
+            href={item.href}
+            onClick={onClick}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              textDecoration: 'none',
+              color: active ? 'var(--accent)' : 'var(--text-secondary)',
+              background: active ? 'var(--accent-light)' : 'transparent',
+              border: active ? '1px solid rgba(59,130,246,0.3)' : '1px solid transparent',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              if (!active) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                e.currentTarget.style.color = 'var(--text-primary)';
+              }
+            }}
+            onMouseLeave={e => {
+              if (!active) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+              }
+            }}
+          >
+            <Icon size={20} />
+          </Link>
+          <span className="gemini-tooltip">{item.label}</span>
+        </div>
+      );
+    }
+
     return (
       <Link
         href={item.href}
         onClick={onClick}
-        title={collapsedMode ? item.label : undefined}
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: collapsedMode ? 'center' : 'flex-start',
-          gap: collapsedMode ? 0 : '0.75rem',
-          padding: collapsedMode ? '0.625rem 0' : '0.625rem 0.875rem',
+          gap: '0.75rem',
+          padding: '0.625rem 0.875rem',
           width: '100%',
           borderRadius: 'var(--radius-sm)',
           textDecoration: 'none',
@@ -76,7 +113,6 @@ export default function Navbar({ user }: NavbarProps) {
           fontFamily: active ? "'Oswald', sans-serif" : "'Inter', sans-serif",
           letterSpacing: active ? '0.04em' : '0',
           textTransform: active ? 'uppercase' : 'none',
-          position: 'relative',
         }}
         onMouseEnter={e => {
           if (!active) {
@@ -92,8 +128,8 @@ export default function Navbar({ user }: NavbarProps) {
         }}
       >
         <Icon size={18} />
-        {!collapsedMode && <span>{item.label}</span>}
-        {!collapsedMode && active && <ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.6 }} />}
+        <span>{item.label}</span>
+        {active && <ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.6 }} />}
       </Link>
     );
   };
@@ -102,7 +138,7 @@ export default function Navbar({ user }: NavbarProps) {
   const SidebarContent = () => (
     <>
       {/* Nav items */}
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, width: '100%' }}>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: isCollapsed ? '0.25rem' : '0.25rem', flex: 1, width: '100%', alignItems: isCollapsed ? 'center' : 'stretch' }}>
         {filteredNav.map(item => (
           <NavLink key={item.href} item={item} />
         ))}
@@ -111,42 +147,60 @@ export default function Navbar({ user }: NavbarProps) {
       {/* User info + Logout */}
       <div style={{
         borderTop: '1px solid var(--border)',
-        paddingTop: '1rem',
-        marginTop: '1rem',
+        paddingTop: isCollapsed ? '0.75rem' : '1rem',
+        marginTop: 'auto',
         display: 'flex',
         flexDirection: 'column',
         alignItems: isCollapsed ? 'center' : 'stretch',
         width: '100%',
+        gap: isCollapsed ? '0.5rem' : '0',
       }}>
         {user && (
-          <div
-            title={isCollapsed ? `${user.name || 'User'} (${user.email})` : undefined}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: isCollapsed ? 'center' : 'flex-start',
-              gap: isCollapsed ? 0 : '0.75rem',
-              padding: '0.25rem 0',
-              marginBottom: '0.75rem',
-              cursor: 'default',
-              width: '100%',
-            }}
-          >
-            <div style={{
-              width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', flexShrink: 0,
-              background: 'var(--accent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 700, color: '#ffffff', fontSize: '0.875rem',
-              overflow: 'hidden',
-            }}>
-              {user.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={user.avatar_url} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                (user.name || user.email || '?')[0].toUpperCase()
-              )}
+          isCollapsed ? (
+            <div className="gemini-tooltip-container" style={{ width: '100%' }}>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
+                background: 'var(--accent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 700, color: '#ffffff', fontSize: '0.875rem',
+                overflow: 'hidden',
+                cursor: 'default',
+              }}>
+                {user.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={user.avatar_url} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  (user.name || user.email || '?')[0].toUpperCase()
+                )}
+              </div>
+              <span className="gemini-tooltip">{user.name || user.email}</span>
             </div>
-            {!isCollapsed && (
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                padding: '0.25rem 0',
+                marginBottom: '0.75rem',
+                cursor: 'default',
+                width: '100%',
+              }}
+            >
+              <div style={{
+                width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', flexShrink: 0,
+                background: 'var(--accent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 700, color: '#ffffff', fontSize: '0.875rem',
+                overflow: 'hidden',
+              }}>
+                {user.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={user.avatar_url} alt={user.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  (user.name || user.email || '?')[0].toUpperCase()
+                )}
+              </div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as React.CSSProperties}>
                   {user.name || 'User'}
@@ -155,27 +209,56 @@ export default function Navbar({ user }: NavbarProps) {
                   {user.email}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )
         )}
 
-        <button
-          onClick={handleLogout}
-          className="btn btn-ghost"
-          title="Keluar"
-          style={{
-            justifyContent: isCollapsed ? 'center' : 'flex-start',
-            gap: isCollapsed ? 0 : '0.75rem',
-            color: 'var(--danger)',
-            width: isCollapsed ? '36px' : '100%',
-            height: '36px',
-            padding: isCollapsed ? 0 : '0.5rem 0.875rem',
-            alignSelf: isCollapsed ? 'center' : 'stretch',
-          }}
-        >
-          <LogOut size={16} />
-          {!isCollapsed && <span>Keluar</span>}
-        </button>
+        {isCollapsed ? (
+          <div className="gemini-tooltip-container" style={{ width: '100%' }}>
+            <button
+              onClick={handleLogout}
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--danger)',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+              aria-label="Keluar"
+            >
+              <LogOut size={18} />
+            </button>
+            <span className="gemini-tooltip">Keluar</span>
+          </div>
+        ) : (
+          <button
+            onClick={handleLogout}
+            className="btn btn-ghost"
+            style={{
+              justifyContent: 'flex-start',
+              gap: '0.75rem',
+              color: 'var(--danger)',
+              width: '100%',
+              padding: '0.5rem 0.875rem',
+            }}
+          >
+            <LogOut size={16} />
+            <span>Keluar</span>
+          </button>
+        )}
       </div>
     </>
   );
@@ -313,120 +396,143 @@ export default function Navbar({ user }: NavbarProps) {
         position: 'fixed',
         top: 0,
         left: 0,
-        width: isCollapsed ? '68px' : '240px',
+        width: isCollapsed ? '64px' : '240px',
         height: '100dvh',
         zIndex: 30,
         background: 'var(--bg-primary)',
         borderRight: '1px solid var(--border)',
         display: isDesktop ? 'flex' : 'none',
         flexDirection: 'column',
-        padding: isCollapsed ? '1.25rem 0.5rem' : '1.25rem 0.875rem',
+        padding: isCollapsed ? '1rem 0' : '1.25rem 0.875rem',
         overflowY: 'auto',
-        overflowX: 'hidden',
+        overflowX: 'visible',
         transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
       }}>
         {/* Logo and Collapse Header */}
         {isCollapsed ? (
           <div style={{
             display: 'flex',
-            flexDirection: 'column',
+            justifyContent: 'center',
             alignItems: 'center',
-            gap: '0.75rem',
-            marginBottom: '1.5rem',
+            marginBottom: '1.25rem',
             width: '100%',
           }}>
-            <div
-              style={{
-                width: '34px', height: '34px', borderRadius: 'var(--radius-sm)',
-                background: 'var(--accent)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 0 1px rgba(59,130,246,0.4)',
-                cursor: 'pointer',
-              }}
-              onClick={toggleSidebar}
-              title="InvRental (Klik untuk memperluas sidebar)"
-            >
-              <QrCode size={18} color="#ffffff" strokeWidth={2.5} />
+            <div className="gemini-tooltip-container">
+              <button
+                onClick={toggleSidebar}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--text-primary)',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }}
+                aria-label="Open sidebar"
+              >
+                <PanelLeftOpen size={20} />
+              </button>
+              <span className="gemini-tooltip">Open sidebar</span>
             </div>
-            <button
-              onClick={toggleSidebar}
-              title="Perluas Menu (Expand)"
-              className="btn btn-ghost btn-icon btn-sm"
-              style={{
-                color: 'var(--accent)',
-                width: '34px',
-                height: '34px',
-                borderRadius: 'var(--radius-sm)',
-                background: 'var(--accent-light)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid rgba(59,130,246,0.2)',
-              }}
-              aria-label="Perluas Menu"
-            >
-              <PanelLeftOpen size={17} />
-            </button>
           </div>
         ) : (
           <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.625rem',
-            marginBottom: '1.5rem', paddingLeft: '0.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.625rem',
+            marginBottom: '1.5rem',
+            paddingLeft: '0.25rem',
+            width: '100%',
           }}>
-            <div style={{
-              width: '32px', height: '32px', borderRadius: 'var(--radius-sm)',
-              background: 'var(--accent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 0 1px rgba(59,130,246,0.4)',
-              flexShrink: 0,
-            }}>
-              <QrCode size={16} color="#ffffff" strokeWidth={2.5} />
+            <div className="gemini-tooltip-container">
+              <button
+                onClick={toggleSidebar}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--text-secondary)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }}
+                aria-label="Close sidebar"
+              >
+                <PanelLeftClose size={20} />
+              </button>
+              <span className="gemini-tooltip">Close sidebar</span>
             </div>
-            <span style={{
-              fontFamily: "'Oswald', sans-serif",
-              fontWeight: 700,
-              fontSize: '1.15rem',
-              color: 'var(--text-primary)',
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              whiteSpace: 'nowrap',
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              flex: 1,
+              minWidth: 0,
             }}>
-              InvRental
-            </span>
-            {user && (
+              <div style={{
+                width: '28px', height: '28px', borderRadius: 'var(--radius-sm)',
+                background: 'var(--accent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 0 1px rgba(59,130,246,0.4)',
+                flexShrink: 0,
+              }}>
+                <QrCode size={15} color="#ffffff" strokeWidth={2.5} />
+              </div>
               <span style={{
-                background: role === 'admin' ? 'var(--accent-light)' : 'rgba(34,197,94,0.15)',
-                color: role === 'admin' ? 'var(--accent)' : 'var(--success)',
-                padding: '0.1rem 0.4rem',
-                borderRadius: '2px',
+                fontFamily: "'Oswald', sans-serif",
                 fontWeight: 700,
+                fontSize: '1.15rem',
+                color: 'var(--text-primary)',
+                letterSpacing: '0.06em',
                 textTransform: 'uppercase',
-                fontSize: '0.6rem',
-                letterSpacing: '0.08em',
-                fontFamily: "'IBM Plex Mono', monospace",
                 whiteSpace: 'nowrap',
-              } as React.CSSProperties}>
-                {role}
+              }}>
+                InvRental
               </span>
-            )}
-            <button
-              onClick={toggleSidebar}
-              title="Ciutkan Menu (Collapse)"
-              className="btn btn-ghost btn-icon btn-sm"
-              style={{
-                marginLeft: 'auto',
-                color: 'var(--text-muted)',
-                width: '30px',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 'var(--radius-sm)',
-              }}
-              aria-label="Ciutkan Menu"
-            >
-              <PanelLeftClose size={17} />
-            </button>
+              {user && (
+                <span style={{
+                  marginLeft: 'auto',
+                  background: role === 'admin' ? 'var(--accent-light)' : 'rgba(34,197,94,0.15)',
+                  color: role === 'admin' ? 'var(--accent)' : 'var(--success)',
+                  padding: '0.1rem 0.4rem',
+                  borderRadius: '2px',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  fontSize: '0.6rem',
+                  letterSpacing: '0.08em',
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  whiteSpace: 'nowrap',
+                } as React.CSSProperties}>
+                  {role}
+                </span>
+              )}
+            </div>
           </div>
         )}
 

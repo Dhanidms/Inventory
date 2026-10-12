@@ -3,7 +3,7 @@
 import { useSidebar } from '@/components/SidebarContext';
 
 const SIDEBAR_EXPANDED = '240px';
-const SIDEBAR_COLLAPSED = '68px';
+const SIDEBAR_COLLAPSED = '64px';
 
 export default function AppLayoutShell({ children }: { children: React.ReactNode }) {
   const { isDesktop, isCollapsed } = useSidebar();

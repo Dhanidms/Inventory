@@ -479,3 +479,36 @@ th.sortable-th:hover {
   align-items: center;
   gap: 0.35rem;
 }
+
+/* ─── Gemini-Style Floating Tooltip ─────────────────────────── */
+.gemini-tooltip-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gemini-tooltip {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+  background: #e2e8f0;
+  color: #0f172a;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.15s;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+.gemini-tooltip-container:hover .gemini-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) scale(1);
+}
