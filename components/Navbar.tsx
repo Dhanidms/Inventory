@@ -63,9 +63,9 @@ export default function Navbar({ user }: NavbarProps) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
+              width: '38px',
+              height: '38px',
+              borderRadius: 'var(--radius-sm)',
               textDecoration: 'none',
               color: active ? 'var(--accent)' : 'var(--text-secondary)',
               background: active ? 'var(--accent-light)' : 'transparent',
@@ -74,7 +74,7 @@ export default function Navbar({ user }: NavbarProps) {
             }}
             onMouseEnter={e => {
               if (!active) {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
                 e.currentTarget.style.color = 'var(--text-primary)';
               }
             }}
@@ -85,7 +85,7 @@ export default function Navbar({ user }: NavbarProps) {
               }
             }}
           >
-            <Icon size={20} />
+            <Icon size={18} />
           </Link>
           <span className="gemini-tooltip">{item.label}</span>
         </div>
@@ -159,7 +159,7 @@ export default function Navbar({ user }: NavbarProps) {
           isCollapsed ? (
             <div className="gemini-tooltip-container" style={{ width: '100%' }}>
               <div style={{
-                width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
+                width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', flexShrink: 0,
                 background: 'var(--accent)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontWeight: 700, color: '#ffffff', fontSize: '0.875rem',
@@ -218,9 +218,9 @@ export default function Navbar({ user }: NavbarProps) {
             <button
               onClick={handleLogout}
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                borderRadius: 'var(--radius-sm)',
                 padding: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -239,7 +239,7 @@ export default function Navbar({ user }: NavbarProps) {
               }}
               aria-label="Keluar"
             >
-              <LogOut size={18} />
+              <LogOut size={16} />
             </button>
             <span className="gemini-tooltip">Keluar</span>
           </div>
@@ -421,28 +421,30 @@ export default function Navbar({ user }: NavbarProps) {
               <button
                 onClick={toggleSidebar}
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: 'var(--radius-sm)',
                   padding: 0,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: 'var(--text-primary)',
                   background: 'rgba(255, 255, 255, 0.05)',
-                  border: 'none',
+                  border: '1px solid var(--border)',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.color = 'var(--accent)';
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
                 }}
                 aria-label="Open sidebar"
               >
-                <PanelLeftOpen size={20} />
+                <PanelLeftOpen size={18} />
               </button>
               <span className="gemini-tooltip">Open sidebar</span>
             </div>
@@ -460,9 +462,9 @@ export default function Navbar({ user }: NavbarProps) {
               <button
                 onClick={toggleSidebar}
                 style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: 'var(--radius-sm)',
                   padding: 0,
                   display: 'flex',
                   alignItems: 'center',
@@ -483,7 +485,7 @@ export default function Navbar({ user }: NavbarProps) {
                 }}
                 aria-label="Close sidebar"
               >
-                <PanelLeftClose size={20} />
+                <PanelLeftClose size={18} />
               </button>
               <span className="gemini-tooltip">Close sidebar</span>
             </div>
