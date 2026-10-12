@@ -396,7 +396,7 @@ export default function Navbar({ user }: NavbarProps) {
         position: 'fixed',
         top: 0,
         left: 0,
-        width: isCollapsed ? '64px' : '240px',
+        width: isCollapsed ? '64px' : '260px',
         height: '100dvh',
         zIndex: 30,
         background: 'var(--bg-primary)',
@@ -453,12 +453,61 @@ export default function Navbar({ user }: NavbarProps) {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.625rem',
+            justifyContent: 'space-between',
+            gap: '0.5rem',
             marginBottom: '1.5rem',
             paddingLeft: '0.25rem',
             width: '100%',
           }}>
-            <div className="gemini-tooltip-container">
+            {/* Left: Logo, Name & Badge */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              minWidth: 0,
+              flex: 1,
+            }}>
+              <div style={{
+                width: '30px', height: '30px', borderRadius: 'var(--radius-sm)',
+                background: 'var(--accent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 0 1px rgba(59,130,246,0.4)',
+                flexShrink: 0,
+              }}>
+                <QrCode size={16} color="#ffffff" strokeWidth={2.5} />
+              </div>
+              <span style={{
+                fontFamily: "'Oswald', sans-serif",
+                fontWeight: 700,
+                fontSize: '1.15rem',
+                color: 'var(--text-primary)',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+              }}>
+                InvRental
+              </span>
+              {user && (
+                <span style={{
+                  background: role === 'admin' ? 'var(--accent-light)' : 'rgba(34,197,94,0.15)',
+                  color: role === 'admin' ? 'var(--accent)' : 'var(--success)',
+                  padding: '0.1rem 0.45rem',
+                  borderRadius: '2px',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  fontSize: '0.62rem',
+                  letterSpacing: '0.08em',
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                } as React.CSSProperties}>
+                  {role}
+                </span>
+              )}
+            </div>
+
+            {/* Right: Collapse toggle button */}
+            <div className="gemini-tooltip-container" style={{ flexShrink: 0 }}>
               <button
                 onClick={toggleSidebar}
                 style={{
@@ -488,52 +537,6 @@ export default function Navbar({ user }: NavbarProps) {
                 <PanelLeftClose size={18} />
               </button>
               <span className="gemini-tooltip">Close sidebar</span>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              flex: 1,
-              minWidth: 0,
-            }}>
-              <div style={{
-                width: '28px', height: '28px', borderRadius: 'var(--radius-sm)',
-                background: 'var(--accent)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 0 1px rgba(59,130,246,0.4)',
-                flexShrink: 0,
-              }}>
-                <QrCode size={15} color="#ffffff" strokeWidth={2.5} />
-              </div>
-              <span style={{
-                fontFamily: "'Oswald', sans-serif",
-                fontWeight: 700,
-                fontSize: '1.15rem',
-                color: 'var(--text-primary)',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                whiteSpace: 'nowrap',
-              }}>
-                InvRental
-              </span>
-              {user && (
-                <span style={{
-                  marginLeft: 'auto',
-                  background: role === 'admin' ? 'var(--accent-light)' : 'rgba(34,197,94,0.15)',
-                  color: role === 'admin' ? 'var(--accent)' : 'var(--success)',
-                  padding: '0.1rem 0.4rem',
-                  borderRadius: '2px',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  fontSize: '0.6rem',
-                  letterSpacing: '0.08em',
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  whiteSpace: 'nowrap',
-                } as React.CSSProperties}>
-                  {role}
-                </span>
-              )}
             </div>
           </div>
         )}
