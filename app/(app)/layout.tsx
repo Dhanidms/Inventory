@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import AppLayoutShell from './AppLayoutShell';
+import { SidebarProvider } from '@/components/SidebarContext';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -16,12 +17,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .single();
 
   return (
-    <div style={{ display: 'flex', minHeight: '100dvh' }}>
-      <Navbar user={userData} />
-      <AppLayoutShell>
-        {children}
-      </AppLayoutShell>
-    </div>
+    <SidebarProvider>
+      <div style={{ display: 'flex', minHeight: '100dvh' }}>
+        <Navbar user={userData} />
+        <AppLayoutShell>
+          {children}
+        </AppLayoutShell>
+      </div>
+    </SidebarProvider>
   );
 }
 

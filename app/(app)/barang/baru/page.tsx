@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { QrCode, Upload, Loader2, ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
 import type { ItemCondition } from '@/types';
+import { compressImage } from '@/lib/image-compression';
 
 interface Category { id: string; name: string; color: string; icon: string; }
 
@@ -59,13 +60,14 @@ export default function TambahBarangForm() {
       let photoUrl: string | null = null;
       const baseQrCode = generateQRCode();
 
-      // Upload foto ke Supabase Storage
+      // Upload foto ke Supabase Storage (dikompres otomatis)
       if (photoFile) {
-        const ext = photoFile.name.split('.').pop();
+        const compressedFile = await compressImage(photoFile, { maxWidth: 1200, quality: 0.82 });
+        const ext = compressedFile.name.split('.').pop() || 'jpg';
         const path = `items/${baseQrCode}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from('item-photos')
-          .upload(path, photoFile, { upsert: true });
+          .upload(path, compressedFile, { upsert: true });
 
         if (uploadError) {
           throw new Error(`Gagal upload foto: ${uploadError.message}`);

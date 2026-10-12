@@ -1,28 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useSidebar } from '@/components/SidebarContext';
 
-const SIDEBAR_WIDTH = '240px';
+const SIDEBAR_EXPANDED = '240px';
+const SIDEBAR_COLLAPSED = '68px';
 
 export default function AppLayoutShell({ children }: { children: React.ReactNode }) {
-  const [isDesktop, setIsDesktop] = useState(false);
+  const { isDesktop, isCollapsed } = useSidebar();
 
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
+  const currentSidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED;
 
   return (
-    <main className="main-content" style={{
-      flex: 1,
-      marginLeft: isDesktop ? SIDEBAR_WIDTH : 0,
-      paddingTop: isDesktop ? 0 : '60px',
-      minWidth: 0,
-      transition: 'margin-left 0.2s ease',
-    }}>
+    <main
+      className="main-content"
+      style={{
+        flex: 1,
+        marginLeft: isDesktop ? currentSidebarWidth : 0,
+        paddingTop: isDesktop ? 0 : '60px',
+        minWidth: 0,
+        transition: 'margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
+    >
       <div className="page-container" style={{ paddingTop: '1.25rem' }}>
         {children}
       </div>

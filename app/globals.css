@@ -452,3 +452,30 @@ tbody tr:hover .sticky-col-right {
 .sj-row:hover {
   background: rgba(255,255,255,0.025);
 }
+
+/* ─── Keyframe Animations ────────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ─── Sortable Table Header ──────────────────────────────────── */
+th.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s, background-color 0.15s;
+}
+th.sortable-th:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.sort-header-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}

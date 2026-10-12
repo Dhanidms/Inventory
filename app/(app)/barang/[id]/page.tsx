@@ -131,7 +131,13 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
           {item.photo_url && (
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.photo_url} alt={item.name} style={{ width: '100%', aspectRatio: '1', objectFit: 'cover' }} />
+              <img
+                src={item.photo_url}
+                alt={item.name}
+                loading="lazy"
+                decoding="async"
+                style={{ width: '100%', aspectRatio: '1', objectFit: 'cover' }}
+              />
             </div>
           )}
           <ItemDetailClient item={item} />

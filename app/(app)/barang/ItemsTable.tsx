@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Item } from '@/types';
 import Link from 'next/link';
-import { QrCode, Eye, Trash2, Pencil, Printer, Image as ImageIcon, Loader2 } from 'lucide-react';
+import {
+  QrCode, Eye, Trash2, Pencil, Printer, Image as ImageIcon, Loader2,
+  ArrowUpDown, ArrowUp, ArrowDown,
+} from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { formatDate } from '@/lib/date-utils';
+import ItemImage from '@/components/ItemImage';
+import { compressImage } from '@/lib/image-compression';
 
 const CONDITION_BADGE: Record<string, string> = {
   baik: 'badge-success',
@@ -20,6 +25,9 @@ const STATUS_BADGE: Record<string, string> = {
   maintenance: 'badge-danger',
 };
 
+type SortField = 'name' | 'category' | 'qr_code' | 'condition' | 'status' | 'created_at';
+type SortDirection = 'asc' | 'desc';
+
 export default function ItemsTable({ items }: { items: Item[] }) {
   const router = useRouter();
   const supabase = createClient();
@@ -28,11 +36,37 @@ export default function ItemsTable({ items }: { items: Item[] }) {
   const [printType, setPrintType] = useState<'qr' | 'barcode'>('qr');
   const [isUploadingBulk, setIsUploadingBulk] = useState(false);
 
+  // Sorting state - default nama ascending (A - Z, natural numeric sort)
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  const sortedItems = useMemo(() => {
+    const list = [...items];
+    list.sort((a, b) => {
+      let cmp = 0;
+      if (sortField === 'name') {
+        cmp = a.name.localeCompare(b.name, 'id', { numeric: true, sensitivity: 'base' });
+      } else if (sortField === 'category') {
+        cmp = (a.category || '').localeCompare(b.category || '', 'id', { numeric: true, sensitivity: 'base' });
+      } else if (sortField === 'qr_code') {
+        cmp = (a.qr_code || '').localeCompare(b.qr_code || '', 'id', { numeric: true, sensitivity: 'base' });
+      } else if (sortField === 'condition') {
+        cmp = (a.condition || '').localeCompare(b.condition || '', 'id', { sensitivity: 'base' });
+      } else if (sortField === 'status') {
+        cmp = (a.status || '').localeCompare(b.status || '', 'id', { sensitivity: 'base' });
+      } else if (sortField === 'created_at') {
+        cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }
+      return sortDirection === 'asc' ? cmp : -cmp;
+    });
+    return list;
+  }, [items, sortField, sortDirection]);
+
   const toggleSelectAll = () => {
-    if (selectedIds.size === items.length) {
+    if (selectedIds.size === sortedItems.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(items.map(i => i.id)));
+      setSelectedIds(new Set(sortedItems.map(i => i.id)));
     }
   };
 
@@ -60,25 +94,28 @@ export default function ItemsTable({ items }: { items: Item[] }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Ukuran foto maksimal 5MB');
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('Ukuran foto maksimal 15MB');
       return;
     }
 
     setIsUploadingBulk(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      // Optimasi dan kompres gambar otomatis
+      const compressedFile = await compressImage(file, { maxWidth: 1200, quality: 0.82 });
+
+      const fileExt = compressedFile.name.split('.').pop() || 'jpg';
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const path = `bulk/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('item-photos')
-        .upload(path, file, { upsert: true });
+        .upload(path, compressedFile, { upsert: true });
 
       if (uploadError) throw new Error(`Gagal upload foto: ${uploadError.message}`);
 
       const { data: urlData } = supabase.storage.from('item-photos').getPublicUrl(path);
-      const photoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      const photoUrl = urlData.publicUrl;
 
       const { error: updateError } = await supabase
         .from('items')
@@ -87,7 +124,7 @@ export default function ItemsTable({ items }: { items: Item[] }) {
 
       if (updateError) throw new Error(`Gagal update database: ${updateError.message}`);
 
-      toast.success(`Foto berhasil diatur untuk ${selectedIds.size} barang`);
+      toast.success(`Foto berhasil dioptimalkan dan diatur untuk ${selectedIds.size} barang`);
       setSelectedIds(new Set());
       router.refresh();
     } catch (err: unknown) {
@@ -278,101 +315,230 @@ export default function ItemsTable({ items }: { items: Item[] }) {
               <th style={{ width: '40px', textAlign: 'center' }}>
                 <input 
                   type="checkbox" 
-                  checked={items.length > 0 && selectedIds.size === items.length}
+                  checked={sortedItems.length > 0 && selectedIds.size === sortedItems.length}
                   onChange={toggleSelectAll}
                   style={{ cursor: 'pointer' }}
                 />
               </th>
-              <th>Nama Barang</th>
-              <th className="hide-mobile">Kategori</th>
-              <th className="hide-mobile">QR Code</th>
-              <th className="hide-mobile">Kondisi</th>
-              <th>Status</th>
-              <th className="hide-mobile">Ditambahkan</th>
-              <th className="sticky-col-right" style={{ textAlign: 'right' }}>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map(item => (
-            <tr key={item.id} style={{ background: selectedIds.has(item.id) ? 'rgba(56, 189, 248, 0.05)' : undefined }}>
-              <td style={{ textAlign: 'center' }}>
-                <input 
-                  type="checkbox"
-                  checked={selectedIds.has(item.id)}
-                  onChange={() => toggleSelect(item.id)}
-                  style={{ cursor: 'pointer' }}
-                />
-              </td>
-              <td>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  {item.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.photo_url}
-                      alt={item.name}
-                      style={{ width: '36px', height: '36px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }}
-                    />
+              <th
+                className="sortable-th"
+                onClick={() => {
+                  if (sortField === 'name') {
+                    setSortDirection(p => (p === 'asc' ? 'desc' : 'asc'));
+                  } else {
+                    setSortField('name');
+                    setSortDirection('asc');
+                  }
+                }}
+                title={`Urutkan Nama (${sortField === 'name' && sortDirection === 'asc' ? 'Z - A' : 'A - Z'})`}
+              >
+                <span className="sort-header-inner">
+                  <span>Nama Barang</span>
+                  {sortField === 'name' ? (
+                    sortDirection === 'asc' ? (
+                      <ArrowUp size={13} style={{ color: 'var(--accent)' }} />
+                    ) : (
+                      <ArrowDown size={13} style={{ color: 'var(--accent)' }} />
+                    )
                   ) : (
-                    <div style={{
-                      width: '36px', height: '36px', borderRadius: '3px', flexShrink: 0,
-                      background: 'var(--bg-tertiary)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <QrCode size={16} color="var(--text-muted)" />
-                    </div>
+                    <ArrowUpDown size={12} style={{ opacity: 0.35 }} />
                   )}
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.name}</div>
-                    {item.notes && (
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>{item.notes}</div>
-                    )}
-                  </div>
-                </div>
-              </td>
-              <td className="hide-mobile">
-                <span className="badge badge-muted">{item.category}</span>
-              </td>
-              <td className="hide-mobile">
-                <code style={{ fontSize: '0.75rem', color: 'var(--accent)', background: 'var(--accent-light)', padding: '0.2rem 0.5rem', borderRadius: '3px', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.02em' }}>
-                  {item.qr_code}
-                </code>
-              </td>
-              <td className="hide-mobile">
-                <span className={`badge ${CONDITION_BADGE[item.condition] ?? 'badge-muted'}`}>
-                  {item.condition}
                 </span>
-              </td>
-              <td>
-                <span className={`badge ${STATUS_BADGE[item.status] ?? 'badge-muted'}`}>
-                  {item.status}
+              </th>
+              <th
+                className="sortable-th hide-mobile"
+                onClick={() => {
+                  if (sortField === 'category') {
+                    setSortDirection(p => (p === 'asc' ? 'desc' : 'asc'));
+                  } else {
+                    setSortField('category');
+                    setSortDirection('asc');
+                  }
+                }}
+                title="Urutkan Kategori"
+              >
+                <span className="sort-header-inner">
+                  <span>Kategori</span>
+                  {sortField === 'category' ? (
+                    sortDirection === 'asc' ? (
+                      <ArrowUp size={13} style={{ color: 'var(--accent)' }} />
+                    ) : (
+                      <ArrowDown size={13} style={{ color: 'var(--accent)' }} />
+                    )
+                  ) : (
+                    <ArrowUpDown size={12} style={{ opacity: 0.35 }} />
+                  )}
                 </span>
-              </td>
-              <td className="hide-mobile" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace" }}>
-                {formatDate(item.created_at)}
-              </td>
-              <td className="sticky-col-right" style={{ textAlign: 'right' }}>
-                <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
-                  <Link href={`/barang/${item.id}`} className="btn btn-ghost btn-icon btn-sm" title="Detail">
-                    <Eye size={15} />
-                  </Link>
-                  <Link href={`/barang/${item.id}/edit`} className="btn btn-ghost btn-icon btn-sm" title="Edit">
-                    <Pencil size={15} />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(item)}
-                    className="btn btn-ghost btn-icon btn-sm"
-                    title="Hapus"
-                    style={{ color: 'var(--danger)' }}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </td>
+              </th>
+              <th
+                className="sortable-th hide-mobile"
+                onClick={() => {
+                  if (sortField === 'qr_code') {
+                    setSortDirection(p => (p === 'asc' ? 'desc' : 'asc'));
+                  } else {
+                    setSortField('qr_code');
+                    setSortDirection('asc');
+                  }
+                }}
+                title="Urutkan QR Code"
+              >
+                <span className="sort-header-inner">
+                  <span>QR Code</span>
+                  {sortField === 'qr_code' ? (
+                    sortDirection === 'asc' ? (
+                      <ArrowUp size={13} style={{ color: 'var(--accent)' }} />
+                    ) : (
+                      <ArrowDown size={13} style={{ color: 'var(--accent)' }} />
+                    )
+                  ) : (
+                    <ArrowUpDown size={12} style={{ opacity: 0.35 }} />
+                  )}
+                </span>
+              </th>
+              <th
+                className="sortable-th hide-mobile"
+                onClick={() => {
+                  if (sortField === 'condition') {
+                    setSortDirection(p => (p === 'asc' ? 'desc' : 'asc'));
+                  } else {
+                    setSortField('condition');
+                    setSortDirection('asc');
+                  }
+                }}
+                title="Urutkan Kondisi"
+              >
+                <span className="sort-header-inner">
+                  <span>Kondisi</span>
+                  {sortField === 'condition' ? (
+                    sortDirection === 'asc' ? (
+                      <ArrowUp size={13} style={{ color: 'var(--accent)' }} />
+                    ) : (
+                      <ArrowDown size={13} style={{ color: 'var(--accent)' }} />
+                    )
+                  ) : (
+                    <ArrowUpDown size={12} style={{ opacity: 0.35 }} />
+                  )}
+                </span>
+              </th>
+              <th
+                className="sortable-th"
+                onClick={() => {
+                  if (sortField === 'status') {
+                    setSortDirection(p => (p === 'asc' ? 'desc' : 'asc'));
+                  } else {
+                    setSortField('status');
+                    setSortDirection('asc');
+                  }
+                }}
+                title="Urutkan Status"
+              >
+                <span className="sort-header-inner">
+                  <span>Status</span>
+                  {sortField === 'status' ? (
+                    sortDirection === 'asc' ? (
+                      <ArrowUp size={13} style={{ color: 'var(--accent)' }} />
+                    ) : (
+                      <ArrowDown size={13} style={{ color: 'var(--accent)' }} />
+                    )
+                  ) : (
+                    <ArrowUpDown size={12} style={{ opacity: 0.35 }} />
+                  )}
+                </span>
+              </th>
+              <th
+                className="sortable-th hide-mobile"
+                onClick={() => {
+                  if (sortField === 'created_at') {
+                    setSortDirection(p => (p === 'asc' ? 'desc' : 'asc'));
+                  } else {
+                    setSortField('created_at');
+                    setSortDirection('asc');
+                  }
+                }}
+                title="Urutkan Tanggal Ditambahkan"
+              >
+                <span className="sort-header-inner">
+                  <span>Ditambahkan</span>
+                  {sortField === 'created_at' ? (
+                    sortDirection === 'asc' ? (
+                      <ArrowUp size={13} style={{ color: 'var(--accent)' }} />
+                    ) : (
+                      <ArrowDown size={13} style={{ color: 'var(--accent)' }} />
+                    )
+                  ) : (
+                    <ArrowUpDown size={12} style={{ opacity: 0.35 }} />
+                  )}
+                </span>
+              </th>
+              <th className="sticky-col-right" style={{ textAlign: 'right' }}>Aksi</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {sortedItems.map(item => (
+              <tr key={item.id} style={{ background: selectedIds.has(item.id) ? 'rgba(56, 189, 248, 0.05)' : undefined }}>
+                <td style={{ textAlign: 'center' }}>
+                  <input 
+                    type="checkbox"
+                    checked={selectedIds.has(item.id)}
+                    onChange={() => toggleSelect(item.id)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <ItemImage src={item.photo_url} alt={item.name} size={36} />
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.name}</div>
+                      {item.notes && (
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>{item.notes}</div>
+                      )}
+                    </div>
+                  </div>
+                </td>
+                <td className="hide-mobile">
+                  <span className="badge badge-muted">{item.category}</span>
+                </td>
+                <td className="hide-mobile">
+                  <code style={{ fontSize: '0.75rem', color: 'var(--accent)', background: 'var(--accent-light)', padding: '0.2rem 0.5rem', borderRadius: '3px', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.02em' }}>
+                    {item.qr_code}
+                  </code>
+                </td>
+                <td className="hide-mobile">
+                  <span className={`badge ${CONDITION_BADGE[item.condition] ?? 'badge-muted'}`}>
+                    {item.condition}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge ${STATUS_BADGE[item.status] ?? 'badge-muted'}`}>
+                    {item.status}
+                  </span>
+                </td>
+                <td className="hide-mobile" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: "'IBM Plex Mono', monospace" }}>
+                  {formatDate(item.created_at)}
+                </td>
+                <td className="sticky-col-right" style={{ textAlign: 'right' }}>
+                  <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
+                    <Link href={`/barang/${item.id}`} className="btn btn-ghost btn-icon btn-sm" title="Detail">
+                      <Eye size={15} />
+                    </Link>
+                    <Link href={`/barang/${item.id}/edit`} className="btn btn-ghost btn-icon btn-sm" title="Edit">
+                      <Pencil size={15} />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(item)}
+                      className="btn btn-ghost btn-icon btn-sm"
+                      title="Hapus"
+                      style={{ color: 'var(--danger)' }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

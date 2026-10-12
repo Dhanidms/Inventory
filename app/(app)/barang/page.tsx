@@ -9,17 +9,28 @@ export const metadata: Metadata = { title: 'Manajemen Barang' };
 export default async function BarangPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; kategori?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; kategori?: string; status?: string; sort?: string }>;
 }) {
   const supabase = await createClient();
   const params = await searchParams;
-  const { q, kategori, status } = params;
+  const { q, kategori, status, sort = 'name_asc' } = params;
 
-  let query = supabase.from('items').select('*').order('created_at', { ascending: false });
+  let query = supabase.from('items').select('*');
 
   if (q) query = query.ilike('name', `%${q}%`);
   if (kategori) query = query.eq('category', kategori);
   if (status) query = query.eq('status', status);
+
+  if (sort === 'name_desc') {
+    query = query.order('name', { ascending: false });
+  } else if (sort === 'created_desc') {
+    query = query.order('created_at', { ascending: false });
+  } else if (sort === 'created_asc') {
+    query = query.order('created_at', { ascending: true });
+  } else {
+    // Default: nama barang ascending (A - Z)
+    query = query.order('name', { ascending: true });
+  }
 
   const { data: items } = await query;
 
@@ -72,6 +83,12 @@ export default async function BarangPage({
             <option value="tersedia">Tersedia</option>
             <option value="disewa">Disewa</option>
             <option value="maintenance">Maintenance</option>
+          </select>
+          <select name="sort" defaultValue={sort} className="select" style={{ minWidth: '150px' }}>
+            <option value="name_asc">Urutan: Nama (A - Z)</option>
+            <option value="name_desc">Urutan: Nama (Z - A)</option>
+            <option value="created_desc">Urutan: Terbaru</option>
+            <option value="created_asc">Urutan: Terlama</option>
           </select>
           <button type="submit" className="btn btn-primary btn-sm">Filter</button>
           <Link href="/barang" className="btn btn-ghost btn-sm">Reset</Link>

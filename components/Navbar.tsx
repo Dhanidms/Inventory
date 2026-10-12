@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@/types';
 import {
   LayoutDashboard, Package, FileText, QrCode, Users, LogOut,
-  ChevronRight, Scan, Tag,
+  ChevronRight, Scan, Tag, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSidebar } from '@/components/SidebarContext';
 
 interface NavbarProps {
   user: User | null;
@@ -24,23 +25,13 @@ const NAV_ITEMS = [
   { href: '/users', label: 'Pengguna', icon: Users, roles: ['admin'], mobilePos: 'dropdown' },
 ];
 
-const SIDEBAR_WIDTH = '240px';
-
 export default function Navbar({ user }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const { isCollapsed, toggleSidebar, isDesktop } = useSidebar();
   
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   const role = user?.role ?? 'pic';
   const filteredNav = NAV_ITEMS.filter(item => item.roles.includes(role));
@@ -60,15 +51,20 @@ export default function Navbar({ user }: NavbarProps) {
   const NavLink = ({ item, onClick }: { item: typeof NAV_ITEMS[0], onClick?: () => void }) => {
     const active = isActive(item.href);
     const Icon = item.icon;
+    const collapsedMode = isCollapsed && isDesktop;
+
     return (
       <Link
         href={item.href}
         onClick={onClick}
+        title={collapsedMode ? item.label : undefined}
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.75rem',
-          padding: '0.625rem 0.875rem',
+          justifyContent: collapsedMode ? 'center' : 'flex-start',
+          gap: collapsedMode ? 0 : '0.75rem',
+          padding: collapsedMode ? '0.625rem 0' : '0.625rem 0.875rem',
+          width: '100%',
           borderRadius: 'var(--radius-sm)',
           textDecoration: 'none',
           fontWeight: active ? 600 : 400,
@@ -80,6 +76,7 @@ export default function Navbar({ user }: NavbarProps) {
           fontFamily: active ? "'Oswald', sans-serif" : "'Inter', sans-serif",
           letterSpacing: active ? '0.04em' : '0',
           textTransform: active ? 'uppercase' : 'none',
+          position: 'relative',
         }}
         onMouseEnter={e => {
           if (!active) {
@@ -95,8 +92,8 @@ export default function Navbar({ user }: NavbarProps) {
         }}
       >
         <Icon size={18} />
-        <span>{item.label}</span>
-        {active && <ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.6 }} />}
+        {!collapsedMode && <span>{item.label}</span>}
+        {!collapsedMode && active && <ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.6 }} />}
       </Link>
     );
   };
@@ -105,7 +102,7 @@ export default function Navbar({ user }: NavbarProps) {
   const SidebarContent = () => (
     <>
       {/* Nav items */}
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, width: '100%' }}>
         {filteredNav.map(item => (
           <NavLink key={item.href} item={item} />
         ))}
@@ -116,14 +113,25 @@ export default function Navbar({ user }: NavbarProps) {
         borderTop: '1px solid var(--border)',
         paddingTop: '1rem',
         marginTop: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: isCollapsed ? 'center' : 'stretch',
+        width: '100%',
       }}>
         {user && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.75rem',
-            padding: '0.25rem 0',
-            marginBottom: '0.75rem',
-            cursor: 'default',
-          }}>
+          <div
+            title={isCollapsed ? `${user.name || 'User'} (${user.email})` : undefined}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isCollapsed ? 'center' : 'flex-start',
+              gap: isCollapsed ? 0 : '0.75rem',
+              padding: '0.25rem 0',
+              marginBottom: '0.75rem',
+              cursor: 'default',
+              width: '100%',
+            }}
+          >
             <div style={{
               width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', flexShrink: 0,
               background: 'var(--accent)',
@@ -138,24 +146,35 @@ export default function Navbar({ user }: NavbarProps) {
                 (user.name || user.email || '?')[0].toUpperCase()
               )}
             </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as React.CSSProperties}>
-                {user.name || 'User'}
+            {!isCollapsed && (
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as React.CSSProperties}>
+                  {user.name || 'User'}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {user.email}
+                </div>
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {user.email}
-              </div>
-            </div>
+            )}
           </div>
         )}
 
         <button
           onClick={handleLogout}
-          className="btn btn-ghost btn-full"
-          style={{ justifyContent: 'flex-start', gap: '0.75rem', color: 'var(--danger)' }}
+          className="btn btn-ghost"
+          title="Keluar"
+          style={{
+            justifyContent: isCollapsed ? 'center' : 'flex-start',
+            gap: isCollapsed ? 0 : '0.75rem',
+            color: 'var(--danger)',
+            width: isCollapsed ? '36px' : '100%',
+            height: '36px',
+            padding: isCollapsed ? 0 : '0.5rem 0.875rem',
+            alignSelf: isCollapsed ? 'center' : 'stretch',
+          }}
         >
           <LogOut size={16} />
-          Keluar
+          {!isCollapsed && <span>Keluar</span>}
         </button>
       </div>
     </>
@@ -294,56 +313,122 @@ export default function Navbar({ user }: NavbarProps) {
         position: 'fixed',
         top: 0,
         left: 0,
-        width: SIDEBAR_WIDTH,
+        width: isCollapsed ? '68px' : '240px',
         height: '100dvh',
         zIndex: 30,
         background: 'var(--bg-primary)',
         borderRight: '1px solid var(--border)',
         display: isDesktop ? 'flex' : 'none',
         flexDirection: 'column',
-        padding: '1.25rem 0.875rem',
+        padding: isCollapsed ? '1.25rem 0.5rem' : '1.25rem 0.875rem',
         overflowY: 'auto',
+        overflowX: 'hidden',
+        transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
       }}>
-        {/* Logo header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '0.625rem',
-          marginBottom: '1.5rem', paddingLeft: '0.5rem',
-        }}>
+        {/* Logo and Collapse Header */}
+        {isCollapsed ? (
           <div style={{
-            width: '32px', height: '32px', borderRadius: 'var(--radius-sm)',
-            background: 'var(--accent)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 0 1px rgba(59,130,246,0.4)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.75rem',
+            marginBottom: '1.5rem',
+            width: '100%',
           }}>
-            <QrCode size={16} color="#ffffff" strokeWidth={2.5} />
+            <div
+              style={{
+                width: '34px', height: '34px', borderRadius: 'var(--radius-sm)',
+                background: 'var(--accent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 0 1px rgba(59,130,246,0.4)',
+                cursor: 'pointer',
+              }}
+              onClick={toggleSidebar}
+              title="InvRental (Klik untuk memperluas sidebar)"
+            >
+              <QrCode size={18} color="#ffffff" strokeWidth={2.5} />
+            </div>
+            <button
+              onClick={toggleSidebar}
+              title="Perluas Menu (Expand)"
+              className="btn btn-ghost btn-icon btn-sm"
+              style={{
+                color: 'var(--accent)',
+                width: '34px',
+                height: '34px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--accent-light)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid rgba(59,130,246,0.2)',
+              }}
+              aria-label="Perluas Menu"
+            >
+              <PanelLeftOpen size={17} />
+            </button>
           </div>
-          <span style={{
-            fontFamily: "'Oswald', sans-serif",
-            fontWeight: 700,
-            fontSize: '1.15rem',
-            color: 'var(--text-primary)',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
+        ) : (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.625rem',
+            marginBottom: '1.5rem', paddingLeft: '0.25rem',
           }}>
-            InvRental
-          </span>
-          {user && (
+            <div style={{
+              width: '32px', height: '32px', borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 0 0 1px rgba(59,130,246,0.4)',
+              flexShrink: 0,
+            }}>
+              <QrCode size={16} color="#ffffff" strokeWidth={2.5} />
+            </div>
             <span style={{
-              marginLeft: 'auto',
-              background: role === 'admin' ? 'var(--accent-light)' : 'rgba(34,197,94,0.15)',
-              color: role === 'admin' ? 'var(--accent)' : 'var(--success)',
-              padding: '0.1rem 0.5rem',
-              borderRadius: '2px',
+              fontFamily: "'Oswald', sans-serif",
               fontWeight: 700,
+              fontSize: '1.15rem',
+              color: 'var(--text-primary)',
+              letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              fontSize: '0.6rem',
-              letterSpacing: '0.08em',
-              fontFamily: "'IBM Plex Mono', monospace",
-            } as React.CSSProperties}>
-              {role}
+              whiteSpace: 'nowrap',
+            }}>
+              InvRental
             </span>
-          )}
-        </div>
+            {user && (
+              <span style={{
+                background: role === 'admin' ? 'var(--accent-light)' : 'rgba(34,197,94,0.15)',
+                color: role === 'admin' ? 'var(--accent)' : 'var(--success)',
+                padding: '0.1rem 0.4rem',
+                borderRadius: '2px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                fontSize: '0.6rem',
+                letterSpacing: '0.08em',
+                fontFamily: "'IBM Plex Mono', monospace",
+                whiteSpace: 'nowrap',
+              } as React.CSSProperties}>
+                {role}
+              </span>
+            )}
+            <button
+              onClick={toggleSidebar}
+              title="Ciutkan Menu (Collapse)"
+              className="btn btn-ghost btn-icon btn-sm"
+              style={{
+                marginLeft: 'auto',
+                color: 'var(--text-muted)',
+                width: '30px',
+                height: '30px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 'var(--radius-sm)',
+              }}
+              aria-label="Ciutkan Menu"
+            >
+              <PanelLeftClose size={17} />
+            </button>
+          </div>
+        )}
 
         <SidebarContent />
       </aside>
